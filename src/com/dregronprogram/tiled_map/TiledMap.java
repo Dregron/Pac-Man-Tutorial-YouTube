@@ -11,8 +11,11 @@ public class TiledMap {
 		long startTime = System.nanoTime();
 		try {
 			BufferedReader bufferedReader = new BufferedReader(new FileReader(TiledMap.class.getResource("/com/dregronprogram/tiled_map/Level1_Map.json").getFile()));
-			//			byte[] data = Files.readAllBytes(path);
-//			String json = new String(data, Charset.forName("UTF-8"));
+			String json = "";
+			while(bufferedReader.ready()) {
+				json += bufferedReader.readLine();
+			}
+			bufferedReader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
