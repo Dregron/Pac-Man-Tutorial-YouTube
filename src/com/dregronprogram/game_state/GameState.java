@@ -11,14 +11,14 @@ import com.dregronprogram.tiled_map.TiledMap;
 
 public class GameState extends State {
 
-	private ApplicationResources applicationResources;
-	private TiledMap tiledmap;
+	private final ApplicationResources applicationResources;
+	private final TiledMap tiledmap;
 	
 	public GameState(StateMachine stateMachine) {
 		super(stateMachine);
 		
-		setApplicationResources(new ApplicationResourcesImpl());
-		this.tiledmap = new TiledMap();
+		this.applicationResources = new ApplicationResourcesImpl();
+		this.tiledmap = new TiledMap("../tiled_map/Level1_Map.json");
 	}
 
 	@Override
@@ -36,11 +36,11 @@ public class GameState extends State {
 
 	}
 	
-	public ApplicationResources getApplicationResources() {
-		return applicationResources;
+	public TiledMap getTiledmap() {
+		return tiledmap;
 	}
 	
-	public void setApplicationResources(ApplicationResources applicationResources) {
-		this.applicationResources = applicationResources;
+	public ApplicationResources getApplicationResources() {
+		return applicationResources;
 	}
 }

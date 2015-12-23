@@ -1,24 +1,25 @@
 package com.dregronprogram.tiled_map;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TiledMap {
 
-	public TiledMap() {
+	private Map tiledMap;
+	
+	public TiledMap(String path) {
 		
 		long startTime = System.nanoTime();
 		try {
-			BufferedReader bufferedReader = new BufferedReader(new FileReader(TiledMap.class.getResource("/com/dregronprogram/tiled_map/Level1_Map.json").getFile()));
-			String json = "";
-			while(bufferedReader.ready()) {
-				json += bufferedReader.readLine();
-			}
-			bufferedReader.close();
+			this.tiledMap = new ObjectMapper().readValue(TiledMap.class.getResourceAsStream(path), Map.class);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		System.err.println((System.nanoTime()-startTime));
+	}
+	
+	public Map getTiledMap() {
+		return tiledMap;
 	}
 }

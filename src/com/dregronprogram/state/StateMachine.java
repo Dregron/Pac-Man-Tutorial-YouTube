@@ -30,7 +30,6 @@ public class StateMachine {
 	public void setState(byte i){
 		for(int r = 0; r < canvas.getKeyListeners().length; r++) {
 			canvas.removeKeyListener(canvas.getKeyListeners()[r]);
-			canvas.removeKeyListener(canvas.getKeyListeners()[r]);
 		}
 		selectState = i;
 		states.get(selectState).init(canvas);
