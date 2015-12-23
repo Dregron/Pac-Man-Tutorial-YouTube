@@ -18,7 +18,8 @@ public class GameState extends State {
 		super(stateMachine);
 		
 		this.applicationResources = new ApplicationResourcesImpl();
-		this.tiledmap = new TiledMap("../tiled_map/Level1_Map.json");
+		//TODO load these when each level begins due to taking 0.1844666 of a second (don't want loading screen)
+		this.tiledmap = new TiledMap("../levels/Level1_Map.json");
 	}
 
 	@Override
