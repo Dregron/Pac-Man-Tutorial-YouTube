@@ -89,14 +89,13 @@ public class Display extends Canvas implements Runnable {
 				System.out.println(FPS);
 			}
 
-			draw(bs);
 			update(delta);
+			draw(bs);
 
 			try {
 				Thread.sleep(((lastLoopTime - System.nanoTime()) + OPTIMAL_TIME) / 1000000);
 			} catch (Exception e) {
 			}
-			;
 		}
 	}
 
