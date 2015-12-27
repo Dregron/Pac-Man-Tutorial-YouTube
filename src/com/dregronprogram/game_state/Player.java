@@ -6,13 +6,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import com.dregronprogram.application.Renderer;
-import com.dregronprogram.application.Vector2;
 
 public class Player implements Renderer, KeyListener {
 	
@@ -23,7 +21,7 @@ public class Player implements Renderer, KeyListener {
 	
 	private enum DIRECTION {LEFT, RIGHT, UP, DOWN}
 	
-	private Map<Vector2, Block> blocks = new HashMap<Vector2, Block>();
+	private List<Block> blocks = new ArrayList<Block>();
 	
 	public Player(BufferedImage playerImg) {
 		this.playerImg = playerImg;
@@ -36,26 +34,24 @@ public class Player implements Renderer, KeyListener {
 	public void update(double delta) {
 		
 		if (isAboutToCollide()) {
-			int count = 0;
-			while (!attemptChangeDirection()) {
-				queuedDirection = DIRECTION.values()[count];
-				count++;
+			while(!attemptChangeDirection()) {
+				queuedDirection = DIRECTION.values()[new Random().nextInt(DIRECTION.values().length)];
 			}
 		}
 		
 		switch (currentDirection) {
-		case LEFT:
-			getRectangle().x -= speed;
-			break;
-		case RIGHT:
-			getRectangle().x += speed;
-			break;
-		case UP:
-			getRectangle().y -= speed;
-			break;
-		case DOWN:
-			getRectangle().y += speed;
-			break;
+			case LEFT:
+				getRectangle().x -= speed;
+				break;
+			case RIGHT:
+				getRectangle().x += speed;
+				break;
+			case UP:
+				getRectangle().y -= speed;
+				break;
+			case DOWN:
+				getRectangle().y += speed;
+				break;
 		}
 		attemptChangeDirection();
 	}
@@ -112,69 +108,47 @@ public class Player implements Renderer, KeyListener {
 	public void setYPos(int yPos) {
 		this.rectangle.y = yPos;
 	}
-
-	public Map<Vector2, Block> getBlocks() {
+	
+	public List<Block> getBlocks() {
 		return blocks;
 	}
 	
-	public void setBlocks(Map<Vector2, Block> blocks) {
-		this.blocks = blocks;
-	}
-	
-	private List<Block> getAdjacentBlocks() {
-		List<Block> adjacentBlocks = new ArrayList<Block>();
-		Vector2 vector2 = new Vector2();
-		vector2.set(getRectangle().x+getRectangle().width, getRectangle().y);
-		adjacentBlocks.add(blocks.get(vector2));
-		vector2.set(getRectangle().x-getRectangle().width, getRectangle().y);
-		adjacentBlocks.add(blocks.get(vector2));
-		vector2.set(getRectangle().x, getRectangle().y-getRectangle().height);
-		adjacentBlocks.add(blocks.get(vector2));
-		vector2.set(getRectangle().x, getRectangle().y+getRectangle().height);
-		adjacentBlocks.add(blocks.get(vector2));
-		
-		vector2.set(getRectangle().x-getRectangle().width, getRectangle().y-getRectangle().height);
-		adjacentBlocks.add(blocks.get(vector2));
-		vector2.set(getRectangle().x+getRectangle().width, getRectangle().y+getRectangle().height);
-		adjacentBlocks.add(blocks.get(vector2));
-		vector2.set(getRectangle().x+getRectangle().width, getRectangle().y-getRectangle().height);
-		adjacentBlocks.add(blocks.get(vector2));
-		vector2.set(getRectangle().x-getRectangle().width, getRectangle().y+getRectangle().height);
-		adjacentBlocks.add(blocks.get(vector2));
-		return adjacentBlocks;
+	public void setBlocks(Collection<Block> blocks) {
+		this.blocks.clear();
+		this.blocks.addAll(blocks);
 	}
 	
 	private boolean isAboutToCollide() {
-		switch (currentDirection) {
+			switch (currentDirection) {
 			case LEFT:
-				for (Block b : blocks.values()) {
-					if (getRectangle().intersects(b.getxPos(), b.getyPos(), b.getWidth(), b.getHeight())) {
+				for (Block b : blocks) {
+					if (getRectangle().intersects(b.getxPos()+1, b.getyPos(), b.getWidth(), b.getHeight())) {
 						return true;
 					}
 				}
 				break;
 			case RIGHT:
-				for (Block b : blocks.values()) {
-					if (getRectangle().intersects(b.getxPos(), b.getyPos(), b.getWidth(), b.getHeight())) {
+				for (Block b : blocks) {
+					if (getRectangle().intersects(b.getxPos()-1, b.getyPos(), b.getWidth(), b.getHeight())) {
 						return true;
 					}
 				}
 				break;
 			case UP:
-				for (Block b : blocks.values()) {
-					if (getRectangle().intersects(b.getxPos(), b.getyPos(), b.getWidth(), b.getHeight())) {
+				for (Block b : blocks) {
+					if (getRectangle().intersects(b.getxPos(), b.getyPos()+1, b.getWidth(), b.getHeight())) {
 						return true;
 					}
 				}
 				break;
 			case DOWN:
-				for (Block b : blocks.values()) {
-					if (getRectangle().intersects(b.getxPos(), b.getyPos(), b.getWidth(), b.getHeight())) {
+				for (Block b : blocks) {
+					if (getRectangle().intersects(b.getxPos(), b.getyPos()-1, b.getWidth(), b.getHeight())) {
 						return true;
 					}
 				}
 				break;
-		}
+			}
 		return false;
 	}
 	
@@ -183,28 +157,28 @@ public class Player implements Renderer, KeyListener {
 		
 		switch (queuedDirection) {
 			case LEFT:
-				for (Block b : blocks.values()) {
+				for (Block b : blocks) {
 					if (getRectangle().intersects(b.getxPos()+b.getWidth(), b.getyPos(), b.getWidth(), b.getHeight())) {
 						return false;
 					}
 				}
 				break;
 			case RIGHT:
-				for (Block b : blocks.values()) {
+				for (Block b : blocks) {
 					if (getRectangle().intersects(b.getxPos()-b.getWidth(), b.getyPos(), b.getWidth(), b.getHeight())) {
 						return false;
 					}
 				}
 				break;
 			case UP:
-				for (Block b : blocks.values()) {
+				for (Block b : blocks) {
 					if (getRectangle().intersects(b.getxPos(), b.getyPos()+b.getHeight(), b.getWidth(), b.getHeight())) {
 						return false;
 					}
 				}
 				break;
 			case DOWN:
-				for (Block b : blocks.values()) {
+				for (Block b : blocks) {
 					if (getRectangle().intersects(b.getxPos(), b.getyPos()-b.getHeight(), b.getWidth(), b.getHeight())) {
 						return false;
 					}

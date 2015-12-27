@@ -32,4 +32,9 @@ public class Vector2 {
 	public void setyPos(int yPos) {
 		this.yPos = yPos;
 	}
+	
+	@Override
+	public String toString() {
+		return getxPos() + ", " + getyPos();
+	}
 }

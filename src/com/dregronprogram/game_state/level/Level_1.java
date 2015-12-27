@@ -21,7 +21,7 @@ public class Level_1 implements Level {
 
 	private TiledMap tiledmap;
 	private Map<Integer, BufferedImage> spriteSheet;
-	private Map<Vector2, Block> blocks = new HashMap<Vector2, Block>();
+	private Map<String, Block> blocks = new HashMap<String, Block>();
 	private List<Food> foods = new ArrayList<Food>();
 	private Player player;
 	
@@ -71,7 +71,7 @@ public class Level_1 implements Level {
 				int dataNum = layer.getData()[counter];
 				Property property = tileset.getTileproperties().get(dataNum-1);
 				if (property != null && property.getValue().equalsIgnoreCase("square")) {
-					blocks.put(new Vector2(x*getTiles().getTileWidth(), y*getTiles().getTileHeight())
+					blocks.put(new Vector2(x*getTiles().getTileWidth(), y*getTiles().getTileHeight()).toString()
 								, new Block(x*getTiles().getTileWidth(), y*getTiles().getTileHeight(), getTiles().getTileWidth(), getTiles().getTileHeight(), spriteSheet.get(dataNum-1)));
 				}
 				if (property != null && property.getValue().equalsIgnoreCase("food")) {
@@ -85,7 +85,7 @@ public class Level_1 implements Level {
 				counter++;
 			}
 		}
-		player.setBlocks(blocks);
+		player.setBlocks(blocks.values());
 		System.err.println((System.nanoTime() - startTime));
 	}
 	
