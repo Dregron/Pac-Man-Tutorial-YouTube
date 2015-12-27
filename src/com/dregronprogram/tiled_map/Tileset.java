@@ -1,5 +1,7 @@
 package com.dregronprogram.tiled_map;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -14,6 +16,7 @@ public class Tileset {
 	private int imageHeight;
 	private int tiledWidth;
 	private int tiledHeight;
+	private Map<Integer, Property> tileproperties;
 	
 	public String getName() {
 		return name;
@@ -61,5 +64,13 @@ public class Tileset {
 	
 	public void setTiledHeight(int tiledHeight) {
 		this.tiledHeight = tiledHeight;
+	}
+
+	public Map<Integer, Property> getTileproperties() {
+		return tileproperties;
+	}
+	
+	public void setTileproperties(Map<Integer, Property> tileproperties) {
+		this.tileproperties = tileproperties;
 	}
 }

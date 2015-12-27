@@ -13,7 +13,7 @@ public class Tiled {
 	@JsonProperty("tileheight")
 	private int tileHeight;
 	
-	private Layers[] layers;
+	private Layer[] layers;
 	
 	private Tileset[] tilesets;
 	
@@ -25,11 +25,11 @@ public class Tiled {
 		this.tilesets = tilesets;
 	}
 	
-	public Layers[] getLayers() {
+	public Layer[] getLayers() {
 		return layers;
 	}
 	
-	public void setLayers(Layers[] layers) {
+	public void setLayers(Layer[] layers) {
 		this.layers = layers;
 	}
 	

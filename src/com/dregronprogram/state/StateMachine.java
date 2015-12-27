@@ -4,14 +4,11 @@ import java.awt.Canvas;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 
-import com.dregronprogram.application.ApplicationResources;
-import com.dregronprogram.application.ApplicationResourcesImpl;
 import com.dregronprogram.game_state.GameState;
 
 public class StateMachine {
 
 	private final ArrayList<State> states = new ArrayList<State>();
-	private final ApplicationResources applicationResources;
 	private final Canvas canvas;
 	private byte selectState = 0;
 	
@@ -20,7 +17,6 @@ public class StateMachine {
 		states.add(gameState);
 		
 		this.canvas = canvas;
-		this.applicationResources = new ApplicationResourcesImpl();
 	}
 	
 	public void draw(Graphics2D g){
@@ -28,7 +24,7 @@ public class StateMachine {
 	}
 	
 	public void update(double delta){
-		states.get(selectState).update(delta, getApplicationResources());
+		states.get(selectState).update(delta);
 	}
 	
 	public void setState(byte i){
@@ -41,9 +37,5 @@ public class StateMachine {
 
 	public byte getStates() {
 		return selectState;
-	}
-	
-	public ApplicationResources getApplicationResources() {
-		return applicationResources;
 	}
 }

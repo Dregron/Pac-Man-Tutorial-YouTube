@@ -3,7 +3,7 @@ package com.dregronprogram.tiled_map;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class Layers {
+public class Layer {
 
 	private String name;
 	private int[] data;
