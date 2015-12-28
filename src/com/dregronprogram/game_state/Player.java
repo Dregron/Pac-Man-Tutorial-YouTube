@@ -11,10 +11,11 @@ import java.util.List;
 import java.util.Random;
 
 import com.dregronprogram.application.Renderer;
+import com.dregronprogram.application.SpriteAnimation;
 
 public class Player implements Renderer, KeyListener {
 	
-	private BufferedImage playerImg;
+	private SpriteAnimation playerAnimation;
 	private Rectangle rectangle;
 	private DIRECTION currentDirection, queuedDirection;
 	private int speed;
@@ -23,16 +24,17 @@ public class Player implements Renderer, KeyListener {
 	
 	private List<Block> blocks = new ArrayList<Block>();
 	
-	public Player(BufferedImage playerImg) {
-		this.playerImg = playerImg;
-		this.rectangle = new Rectangle(0, 0, playerImg.getWidth(), playerImg.getHeight());
+	public Player(List<BufferedImage> playerImg) {
+		this.playerAnimation = new SpriteAnimation(0, 0, 8, playerImg);
+		this.rectangle = new Rectangle(0, 0, playerImg.get(0).getWidth(), playerImg.get(0).getHeight());
 		this.speed = 2;
-		this.currentDirection = DIRECTION.LEFT;
+		this.currentDirection = DIRECTION.RIGHT;
+	
+		this.playerAnimation.setLoop(true);
 	}
 
 	@Override
 	public void update(double delta) {
-		
 		if (isAboutToCollide()) {
 			while(!attemptChangeDirection()) {
 				queuedDirection = DIRECTION.values()[new Random().nextInt(DIRECTION.values().length)];
@@ -54,12 +56,30 @@ public class Player implements Renderer, KeyListener {
 				break;
 		}
 		attemptChangeDirection();
+		playerAnimation.setxPos(getRectangle().x);
+		playerAnimation.setyPos(getRectangle().y);
+		playerAnimation.update(delta);
 	}
 
 	private boolean attemptChangeDirection() {
 		if (changeDirection()) {
 			currentDirection = queuedDirection;
 			queuedDirection = null;
+			switch (currentDirection) {
+				case LEFT:
+					playerAnimation.setRotation(Math.toDegrees(.2f));
+					break;
+				case RIGHT:
+					playerAnimation.setRotation(Math.toDegrees(0));
+					break;
+				case UP:
+					playerAnimation.setRotation(Math.toDegrees(.3f));
+					break;
+				case DOWN:
+					playerAnimation.setRotation(Math.toDegrees(.1f));
+					break;
+			
+			}
 			return true;
 		}
 		return false;
@@ -67,11 +87,7 @@ public class Player implements Renderer, KeyListener {
 	
 	@Override
 	public void draw(Graphics2D g) {
-		g.drawImage(getPlayerImg(), getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height, null);
-	}
-
-	public BufferedImage getPlayerImg() {
-		return playerImg;
+		playerAnimation.draw(g);
 	}
 
 	public Rectangle getRectangle() {

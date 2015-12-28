@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +26,7 @@ public class GameState extends State {
 		super(stateMachine);
 
 		this.loadSpriteSheet();
-		this.player = new Player(spriteSheet.get(36));
+		this.player = new Player(Arrays.asList(spriteSheet.get(6), spriteSheet.get(7), spriteSheet.get(8)));
 		this.levelHandler = new LevelHandler(spriteSheet, player);
 	}
 	
