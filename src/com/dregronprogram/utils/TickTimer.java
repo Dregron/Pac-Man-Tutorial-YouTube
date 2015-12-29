@@ -1,4 +1,4 @@
-package com.dregronprogram.application;
+package com.dregronprogram.utils;
 
 public class TickTimer {
 

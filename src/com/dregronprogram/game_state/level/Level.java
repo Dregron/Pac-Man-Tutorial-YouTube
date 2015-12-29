@@ -9,6 +9,7 @@ public interface Level {
 	
 	public boolean isComplete();
 	public boolean isGameOver();
+	public boolean levelReady();
 	
 	public void beginLevel();
 }

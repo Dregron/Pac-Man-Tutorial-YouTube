@@ -2,6 +2,8 @@ package com.dregronprogram.game_state;
 
 import java.awt.Canvas;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
@@ -16,7 +18,7 @@ import com.dregronprogram.state.State;
 import com.dregronprogram.state.StateMachine;
 import com.dregronprogram.tiled_map.TiledMap;
 
-public class GameState extends State {
+public class GameState extends State implements KeyListener {
 
 	private Map<Integer, BufferedImage> spriteSheet = new HashMap<Integer, BufferedImage>();
 	private LevelHandler levelHandler;
@@ -53,22 +55,48 @@ public class GameState extends State {
 
 	@Override
 	public void update(double delta) {
-		levelHandler.update(delta);
-		player.update(delta);
+		if (!getLevelHandler().levelReady()) return;
+		
+		getLevelHandler().update(delta);
+		getPlayer().update(delta);
 	}
 
 	@Override
 	public void draw(Graphics2D g) {
-		levelHandler.draw(g);
-		player.draw(g);
+		if (!getLevelHandler().levelReady()) return;
+		
+		getLevelHandler().draw(g);
+		getPlayer().draw(g);
 	}
 
 	@Override
 	public void init(Canvas canvas) {
+		canvas.addKeyListener(this);
 		canvas.addKeyListener(getPlayer());
+	}
+	
+	public LevelHandler getLevelHandler() {
+		return levelHandler;
 	}
 	
 	public Player getPlayer() {
 		return player;
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+		
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			levelHandler.getCurrentLevel().beginLevel();
+		}
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		
 	}
 }

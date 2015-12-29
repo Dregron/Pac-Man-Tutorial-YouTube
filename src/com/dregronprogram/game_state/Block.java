@@ -1,14 +1,18 @@
 package com.dregronprogram.game_state;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import com.dregronprogram.application.Renderer;
+import com.dregronprogram.utils.Colour;
 
 public class Block implements Renderer {
 
 	private int xPos, yPos, width, height;
 	private BufferedImage image;
+	private Color colour = Colour.ALPHA;
+	private boolean justSet = false;
 	
 	public Block(int xPos, int yPos, int width, int height, BufferedImage image) {
 		this.xPos = xPos;
@@ -20,12 +24,17 @@ public class Block implements Renderer {
 	
 	@Override
 	public void update(double delta) {
-		
 	}
 
 	@Override
 	public void draw(Graphics2D g) {
+		g.setXORMode(colour);
 		g.drawImage(getImage(), getxPos(), getyPos(), getWidth(), getHeight(), null);
+
+		if (justSet) {
+			justSet = false;
+			colour = Colour.ALPHA;
+		}
 	}
 
 	public int getxPos() {
@@ -66,5 +75,10 @@ public class Block implements Renderer {
 
 	public void setImage(BufferedImage image) {
 		this.image = image;
+	}
+	
+	public void setColour(Color colour) {
+		justSet = true;
+		this.colour = colour;
 	}
 }

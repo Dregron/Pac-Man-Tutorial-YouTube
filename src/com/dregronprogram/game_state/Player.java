@@ -1,17 +1,20 @@
 package com.dregronprogram.game_state;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import com.dregronprogram.application.Renderer;
-import com.dregronprogram.application.SpriteAnimation;
+import com.dregronprogram.utils.SpriteAnimation;
+import com.dregronprogram.utils.Vector2;
 
 public class Player implements Renderer, KeyListener {
 	
@@ -22,7 +25,8 @@ public class Player implements Renderer, KeyListener {
 	
 	private enum DIRECTION {LEFT, RIGHT, UP, DOWN}
 	
-	private List<Block> blocks = new ArrayList<Block>();
+	private Map<Vector2, Block> blocks = new HashMap<Vector2, Block>();
+	private Map<Vector2, Food> foods = new HashMap<Vector2, Food>();
 	
 	public Player(List<BufferedImage> playerImg) {
 		this.playerAnimation = new SpriteAnimation(0, 0, 8, playerImg);
@@ -56,6 +60,11 @@ public class Player implements Renderer, KeyListener {
 				break;
 		}
 		attemptChangeDirection();
+		for (Food food : getAdjacentFoods())  {
+			if (getRectangle().intersects(food.getxPos(), food.getyPos(), food.getWidth(), food.getHeight())) {
+				foods.remove(new Vector2(food.getxPos(), food.getyPos(), 5, 5));
+			}
+		}
 		playerAnimation.setxPos(getRectangle().x);
 		playerAnimation.setyPos(getRectangle().y);
 		playerAnimation.update(delta);
@@ -125,40 +134,108 @@ public class Player implements Renderer, KeyListener {
 		this.rectangle.y = yPos;
 	}
 	
-	public List<Block> getBlocks() {
+	public void setBlocks(Map<Vector2, Block> blocks) {
+		this.blocks = blocks;
+	}
+	
+	public Map<Vector2, Block> getBlocks() {
 		return blocks;
 	}
 	
-	public void setBlocks(Collection<Block> blocks) {
-		this.blocks.clear();
-		this.blocks.addAll(blocks);
+	public Map<Vector2, Food> getFoods() {
+		return foods;
+	}
+	
+	public void setFoods(Map<Vector2, Food> foods) {
+		this.foods = foods;
+	}
+	
+	private List<Food> getAdjacentFoods() {
+		List<Food> bs = new ArrayList<Food>();
+		Vector2 vector = new Vector2(30, 28);
+		vector.set(getRectangle().x+getRectangle().width, getRectangle().y);
+		addAdjacentFood(bs, vector);
+		vector.set(getRectangle().x-getRectangle().width, getRectangle().y);
+		addAdjacentFood(bs, vector);
+		vector.set(getRectangle().x, getRectangle().y+getRectangle().height);
+		addAdjacentFood(bs, vector);
+		vector.set(getRectangle().x, getRectangle().y-getRectangle().height);
+		addAdjacentFood(bs, vector);
+		
+		vector.set(getRectangle().x+getRectangle().width, getRectangle().y+getRectangle().height);
+		addAdjacentFood(bs, vector);
+		vector.set(getRectangle().x-getRectangle().width, getRectangle().y-getRectangle().height);
+		addAdjacentFood(bs, vector);
+		vector.set(getRectangle().x-getRectangle().width, getRectangle().y+getRectangle().height);
+		addAdjacentFood(bs, vector);
+		vector.set(getRectangle().x+getRectangle().width, getRectangle().y-getRectangle().height);
+		addAdjacentFood(bs, vector);
+		return bs;
+	}
+
+	private void addAdjacentFood(List<Food> bs, Vector2 vector) {
+		Food food = foods.get(vector);
+		if (food != null) {
+			bs.add(food);
+		}
+	}
+	
+	private List<Block> getAdjacentBlocks() {
+		List<Block> bs = new ArrayList<Block>();
+		Vector2 vector = new Vector2(30, 28);
+		vector.set(getRectangle().x+getRectangle().width, getRectangle().y);
+		addAdjacentBlock(bs, vector);
+		vector.set(getRectangle().x-getRectangle().width, getRectangle().y);
+		addAdjacentBlock(bs, vector);
+		vector.set(getRectangle().x, getRectangle().y+getRectangle().height);
+		addAdjacentBlock(bs, vector);
+		vector.set(getRectangle().x, getRectangle().y-getRectangle().height);
+		addAdjacentBlock(bs, vector);
+		
+		vector.set(getRectangle().x+getRectangle().width, getRectangle().y+getRectangle().height);
+		addAdjacentBlock(bs, vector);
+		vector.set(getRectangle().x-getRectangle().width, getRectangle().y-getRectangle().height);
+		addAdjacentBlock(bs, vector);
+		vector.set(getRectangle().x-getRectangle().width, getRectangle().y+getRectangle().height);
+		addAdjacentBlock(bs, vector);
+		vector.set(getRectangle().x+getRectangle().width, getRectangle().y-getRectangle().height);
+		addAdjacentBlock(bs, vector);
+		return bs;
+	}
+
+	private void addAdjacentBlock(List<Block> bs, Vector2 vector) {
+		Block block = blocks.get(vector);
+		if (block != null) {
+			block.setColour(Color.MAGENTA);
+			bs.add(block);
+		}
 	}
 	
 	private boolean isAboutToCollide() {
 			switch (currentDirection) {
 			case LEFT:
-				for (Block b : blocks) {
+				for (Block b : getAdjacentBlocks()) {
 					if (getRectangle().intersects(b.getxPos()+1, b.getyPos(), b.getWidth(), b.getHeight())) {
 						return true;
 					}
 				}
 				break;
 			case RIGHT:
-				for (Block b : blocks) {
+				for (Block b : getAdjacentBlocks()) {
 					if (getRectangle().intersects(b.getxPos()-1, b.getyPos(), b.getWidth(), b.getHeight())) {
 						return true;
 					}
 				}
 				break;
 			case UP:
-				for (Block b : blocks) {
+				for (Block b : getAdjacentBlocks()) {
 					if (getRectangle().intersects(b.getxPos(), b.getyPos()+1, b.getWidth(), b.getHeight())) {
 						return true;
 					}
 				}
 				break;
 			case DOWN:
-				for (Block b : blocks) {
+				for (Block b : getAdjacentBlocks()) {
 					if (getRectangle().intersects(b.getxPos(), b.getyPos()-1, b.getWidth(), b.getHeight())) {
 						return true;
 					}
@@ -173,28 +250,28 @@ public class Player implements Renderer, KeyListener {
 		
 		switch (queuedDirection) {
 			case LEFT:
-				for (Block b : blocks) {
+				for (Block b : getAdjacentBlocks()) {
 					if (getRectangle().intersects(b.getxPos()+b.getWidth(), b.getyPos(), b.getWidth(), b.getHeight())) {
 						return false;
 					}
 				}
 				break;
 			case RIGHT:
-				for (Block b : blocks) {
+				for (Block b : getAdjacentBlocks()) {
 					if (getRectangle().intersects(b.getxPos()-b.getWidth(), b.getyPos(), b.getWidth(), b.getHeight())) {
 						return false;
 					}
 				}
 				break;
 			case UP:
-				for (Block b : blocks) {
+				for (Block b : getAdjacentBlocks()) {
 					if (getRectangle().intersects(b.getxPos(), b.getyPos()+b.getHeight(), b.getWidth(), b.getHeight())) {
 						return false;
 					}
 				}
 				break;
 			case DOWN:
-				for (Block b : blocks) {
+				for (Block b : getAdjacentBlocks()) {
 					if (getRectangle().intersects(b.getxPos(), b.getyPos()-b.getHeight(), b.getWidth(), b.getHeight())) {
 						return false;
 					}

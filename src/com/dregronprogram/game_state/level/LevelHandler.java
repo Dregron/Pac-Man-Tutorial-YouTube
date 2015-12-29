@@ -14,8 +14,6 @@ public class LevelHandler {
 	public LevelHandler(Map<Integer, BufferedImage> spriteSheet, Player player) {
 		this.currentLevel = 0;
 		this.levels[0] = new Level_1(spriteSheet, player);
-		
-		this.levels[currentLevel].beginLevel();
 	}
 	
 	public void update(double delta) {
@@ -26,4 +24,11 @@ public class LevelHandler {
 		levels[currentLevel].draw(g);
 	}
 	
+	public Level getCurrentLevel() {
+		return levels[currentLevel];
+	}
+	
+	public boolean levelReady() {
+		return getCurrentLevel().levelReady();
+	}
 }

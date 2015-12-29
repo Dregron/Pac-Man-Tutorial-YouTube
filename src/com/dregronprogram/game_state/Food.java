@@ -25,7 +25,7 @@ public class Food implements Renderer {
 
 	@Override
 	public void draw(Graphics2D g) {
-		g.drawImage(getImage(), getxPos(), getyPos(), getWidth(), getHeight(), null);
+		g.drawImage(getImage(), getxPos()-(getImage().getWidth()/2), getyPos()-(getImage().getHeight()/2), getImage().getWidth(), getImage().getHeight(), null);
 	}
 
 	public int getxPos() {

@@ -53,6 +53,7 @@ public class Display extends Canvas implements Runnable {
 
 	public static int WIDTH = 800, HEIGHT = 600;
 	public int FPS;
+	private long longestTook = Long.MIN_VALUE;
 
 	public static StateMachine state;
 
@@ -82,15 +83,21 @@ public class Display extends Canvas implements Runnable {
 
 			frames++;
 
-			if (System.currentTimeMillis() - timer > 1000) {
+			if (frames <= 50 && System.currentTimeMillis() - timer > 1000) {
 				timer += 1000;
 				FPS = frames;
 				frames = 0;
 				System.out.println(FPS);
 			}
 
+			long startTime = System.currentTimeMillis();
 			update(delta);
 			draw(bs);
+			long  endTime = (System.currentTimeMillis() - startTime);
+			if (endTime > longestTook) {
+				longestTook = endTime;
+				System.err.println("Loading:" + (System.currentTimeMillis() - startTime));
+			}
 
 			try {
 				Thread.sleep(((lastLoopTime - System.nanoTime()) + OPTIMAL_TIME) / 1000000);
