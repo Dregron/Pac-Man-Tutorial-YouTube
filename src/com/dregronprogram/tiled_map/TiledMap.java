@@ -9,13 +9,12 @@ public class TiledMap {
 	private Tiled tiledMap;
 	
 	public TiledMap(String path) {
-		
+
 		try {
 			this.tiledMap = new ObjectMapper().readValue(TiledMap.class.getResource(path), Tiled.class);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 	public Tiled getTiled() {

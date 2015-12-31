@@ -35,8 +35,7 @@ public class SpriteAnimation {
 	}
 
 	public void draw(Graphics2D g) {
-		if (isSpriteAnimDestroyed())
-			return;
+		if (isSpriteAnimDestroyed()) return;
 		
 		at.setToIdentity();
 		at.rotate(Math.toDegrees(rotation), getxPos() + (width / 2), getyPos() + (height / 2));
@@ -46,8 +45,7 @@ public class SpriteAnimation {
 	}
 
 	public void update(double delta) {
-		if (isSpriteAnimDestroyed())
-			return;
+		if (isSpriteAnimDestroyed()) return;
 
 		if (loop && !play) {
 			loopAnimation();

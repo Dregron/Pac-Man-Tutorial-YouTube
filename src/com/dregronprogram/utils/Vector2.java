@@ -1,5 +1,7 @@
 package com.dregronprogram.utils;
 
+import static com.dregronprogram.utils.MathUtils.isEqual;
+
 public class Vector2 {
 
 	private int xPos, yPos, width, height;
@@ -59,9 +61,6 @@ public class Vector2 {
 		return 1;
 	}
 	
-	private boolean isEqual(int a, int b, int tolerances) {
-		return Math.abs(a - b) <= tolerances;
-	}
 	
 	@Override
 	public String toString() {

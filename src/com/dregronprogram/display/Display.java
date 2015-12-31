@@ -93,10 +93,11 @@ public class Display extends Canvas implements Runnable {
 			long startTime = System.currentTimeMillis();
 			update(delta);
 			draw(bs);
-			long  endTime = (System.currentTimeMillis() - startTime);
+			
+			long endTime = (System.currentTimeMillis() - startTime);
 			if (endTime > longestTook) {
 				longestTook = endTime;
-				System.err.println("Loading:" + (System.currentTimeMillis() - startTime));
+				System.err.println("Loading:" + endTime);
 			}
 
 			try {

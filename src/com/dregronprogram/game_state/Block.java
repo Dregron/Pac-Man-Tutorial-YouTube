@@ -30,11 +30,11 @@ public class Block implements Renderer {
 	public void draw(Graphics2D g) {
 		g.setXORMode(colour);
 		g.drawImage(getImage(), getxPos(), getyPos(), getWidth(), getHeight(), null);
-
 		if (justSet) {
 			justSet = false;
 			colour = Colour.ALPHA;
 		}
+		g.setPaintMode();
 	}
 
 	public int getxPos() {

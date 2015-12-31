@@ -29,6 +29,16 @@ public class Tiled {
 		return layers;
 	}
 	
+	public Layer getLayer(String layerName) {
+		for (Layer layer : layers) {
+			if (layerName.equals(layer.getName())) {
+				return layer;
+			}
+		}
+		return null;
+		
+	}
+	
 	public void setLayers(Layer[] layers) {
 		this.layers = layers;
 	}

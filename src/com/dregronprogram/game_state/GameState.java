@@ -23,6 +23,7 @@ public class GameState extends State implements KeyListener {
 	private Map<Integer, BufferedImage> spriteSheet = new HashMap<Integer, BufferedImage>();
 	private LevelHandler levelHandler;
 	private Player player;
+	private boolean beginLevel;
 	
 	public GameState(StateMachine stateMachine) {
 		super(stateMachine);
@@ -55,10 +56,15 @@ public class GameState extends State implements KeyListener {
 
 	@Override
 	public void update(double delta) {
-		if (!getLevelHandler().levelReady()) return;
 		
-		getLevelHandler().update(delta);
-		getPlayer().update(delta);
+		if (getLevelHandler().levelReady()) {
+			
+			getLevelHandler().update(delta);
+			getPlayer().update(delta);
+		} else if (isLevelBegining()) {
+							
+			setBeginLevel(false);
+		}
 	}
 
 	@Override
@@ -90,13 +96,22 @@ public class GameState extends State implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-			levelHandler.getCurrentLevel().beginLevel();
-		}
+		
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			getLevelHandler().getCurrentLevel().beginLevel();	
+			setBeginLevel(true);
+		}
+	}
+	
+	public void setBeginLevel(boolean beginLevel) {
+		this.beginLevel = beginLevel;
+	}
+	
+	public boolean isLevelBegining() {
+		return beginLevel;
 	}
 }
