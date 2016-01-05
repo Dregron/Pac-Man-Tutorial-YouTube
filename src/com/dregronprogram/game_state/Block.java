@@ -78,6 +78,7 @@ public class Block implements Renderer {
 	}
 	
 	public void setColour(Color colour) {
+		if (!GameState.debugMode) return;
 		justSet = true;
 		this.colour = colour;
 	}

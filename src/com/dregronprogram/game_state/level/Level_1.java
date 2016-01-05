@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.dregronprogram.game_state.Block;
 import com.dregronprogram.game_state.Food;
+import com.dregronprogram.game_state.GameState;
 import com.dregronprogram.game_state.Player;
 import com.dregronprogram.game_state.a_star.Node;
 import com.dregronprogram.game_state.ghost.Ghost;
@@ -17,6 +18,7 @@ import com.dregronprogram.tiled_map.Property;
 import com.dregronprogram.tiled_map.Tiled;
 import com.dregronprogram.tiled_map.TiledMap;
 import com.dregronprogram.tiled_map.Tileset;
+import com.dregronprogram.utils.TickTimer;
 import com.dregronprogram.utils.Vector2;
 
 public class Level_1 implements Level {
@@ -29,6 +31,7 @@ public class Level_1 implements Level {
 	private List<Ghost> ghosts = new ArrayList<Ghost>();
 	private Player player;
 	private boolean ready;
+	private TickTimer spawn;
 	
 	public Level_1(Map<Integer, BufferedImage> spriteSheet, Player player) {
 		this.spriteSheet = spriteSheet;
@@ -42,13 +45,25 @@ public class Level_1 implements Level {
 		for (Ghost ghost : ghosts) {
 			ghost.update(delta);
 		}
+		
+		spawn.tick(delta);
+		if (spawn.isEventReady()) {
+			for (Ghost ghost : ghosts) {
+				if (!ghost.isStart()) {
+					ghost.setStart(true);
+					break;
+				}
+			}
+		}
 	}
 
 	@Override
 	public void draw(Graphics2D g) {
 		
-		for (Node node : nodes.values()) {
-			node.draw(g);
+		if (GameState.debugMode) {
+			for (Node node : nodes.values()) {
+				node.draw(g);
+			}
 		}
 		
 		for (Food food : foods.values()) {
@@ -92,6 +107,15 @@ public class Level_1 implements Level {
 						if (property != null && property.getValue().equalsIgnoreCase("square")) {
 							blocks.put(new Vector2(x*getTiles().getTileWidth(), y*getTiles().getTileHeight(), 30, 28)
 										, new Block(x*getTiles().getTileWidth(), y*getTiles().getTileHeight(), getTiles().getTileWidth(), getTiles().getTileHeight(), spriteSheet.get(dataNum-1)));
+						
+//							nodes.put(new Vector2(x*getTiles().getTileWidth()
+//									, y*getTiles().getTileHeight()
+//									, getTiles().getTileWidth()-2
+//									, getTiles().getTileHeight()-2)
+//							,new Node(x*getTiles().getTileWidth()
+//									, y*getTiles().getTileHeight()
+//									, getTiles().getTileWidth()
+//									, getTiles().getTileHeight(), "block"));
 						}
 						if (property != null && property.getValue().equalsIgnoreCase("food")) {
 							foods.put(new Vector2((x*getTiles().getTileWidth()) + (getTiles().getTileWidth()/2), (y*getTiles().getTileHeight())+(getTiles().getTileHeight()/2), 5, 5), 
@@ -124,7 +148,7 @@ public class Level_1 implements Level {
 									  ,new Node(x*getTiles().getTileWidth()
 												, y*getTiles().getTileHeight()
 												, getTiles().getTileWidth()
-												, getTiles().getTileHeight()));
+												, getTiles().getTileHeight(), "floot"));
 						}
 					}
 				}
@@ -139,6 +163,7 @@ public class Level_1 implements Level {
 			ghost.setPlayer(player);
 		}
 		ready = true;
+		spawn = new TickTimer(300);
 	}
 	
 	private Tiled getTiles() {

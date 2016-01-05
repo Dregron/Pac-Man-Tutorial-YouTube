@@ -3,12 +3,14 @@ package com.dregronprogram.game_state.ghost;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.util.LinkedHashMap;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 
 import com.dregronprogram.application.Renderer;
+import com.dregronprogram.display.Display;
 import com.dregronprogram.game_state.Direction;
 import com.dregronprogram.game_state.Player;
 import com.dregronprogram.game_state.a_star.Node;
@@ -17,14 +19,15 @@ import com.dregronprogram.utils.Vector2;
 
 public class Ghost implements Renderer {
 
-	private Map<Node, Direction> direction = new LinkedHashMap<Node, Direction>();
-	private ListIterator<Node> sortedList;
+	private List<Direction> direction = new LinkedList<Direction>();
+	private ListIterator<Direction> sortedList;
 	private BufferedImage ghostImage;
 	private Rectangle rectangle;
 	private Path path;
-	private Node currentNode;
-	private int speed;
+	private Direction currentDirection;
+	private int speed, stam;
 	private Player player;
+	private boolean start = false;
 	
 	public Ghost(int xPos, int yPos, int width, int height, BufferedImage bufferedImage, Map<Vector2, Node> nodes) {
 		this.setRectangle(new Rectangle(xPos, yPos, width, height));
@@ -35,42 +38,48 @@ public class Ghost implements Renderer {
 
 	@Override
 	public void update(double delta) {
+		if (!isStart()) return;
 		
-		if (currentNode != null) {
-			switch (direction.get(currentNode)) {
+		if (currentDirection != null) {
+			switch (currentDirection) {
 			case LEFT:
 				getRectangle().x -= speed;
+				stam -= speed;
 				break;
 			case RIGHT:
 				getRectangle().x += speed;
+				stam -= speed;
 				break;
 			case UP:
 				getRectangle().y -= speed;
+				stam -= speed;
 				break;
 			case DOWN:
 				getRectangle().y += speed;
+				stam -= speed;
+				break;
+			case STOP:
 				break;
 			}
-		
-			if (	currentNode.getxPos() == getRectangle().x 
-					&& currentNode.getyPos() == getRectangle().y 
-					&& sortedList.hasPrevious()) {
-				
-				currentNode = sortedList.previous();
-			} else if (	currentNode.getxPos() == getRectangle().x 
-						&& currentNode.getyPos() == getRectangle().y 
-						&& !sortedList.hasPrevious()) {
-				currentNode = null;
-				for (Node node : direction.keySet()) {
-					node.clearColour();
-				}
+			
+			if (sortedList.hasPrevious() && stam == 0) {
+				currentDirection = sortedList.previous();
+				setStam();
+			} else if (!sortedList.hasPrevious() && stam == 0) {
+				currentDirection = null;
 				direction.clear();
 			}
 		}
 		
- 		if (direction.isEmpty()) {
+ 		while (direction.isEmpty()) {
  			findPath(player.getRectangle().x, player.getRectangle().y, player.getRectangle().width, player.getRectangle().height);
  		}
+ 		
+ 		if (getRectangle().x > Display.WIDTH-getRectangle().width) {
+			getRectangle().x = 0;
+		} else if (getRectangle().x <= 0) {
+			getRectangle().x = Display.WIDTH-getRectangle().width;
+		}
 	}
 	
 	@Override
@@ -99,7 +108,6 @@ public class Ghost implements Renderer {
 	}
 	
 	public void setPlayer(Player player) {
-		findPath(player.getRectangle().x, player.getRectangle().y, player.getRectangle().width, player.getRectangle().height);
 		this.player = player;
 	}
 	
@@ -108,13 +116,62 @@ public class Ghost implements Renderer {
 	}
 	
 	private void findPath(int targetXPos, int targetYPos, int width, int height) {
-		Map<Node, Direction> findPath = path.findPath(getRectangle().x, getRectangle().y, targetXPos, targetYPos, width, height);
+		int dx = (targetXPos/width);
+		int dy = (targetYPos/height);
+		int targetX =dx*width;
+		int targetY = dy*height;
+		List<Direction> findPath = path.findPath(getRectangle().x, getRectangle().y, targetX, targetY, width, height);
 		if (!findPath.isEmpty()) {
 			this.direction = findPath;
 			if (direction != null && !direction.isEmpty()) {		
-				this.sortedList = new LinkedList<>(direction.keySet()).listIterator(direction.size());
-				this.currentNode = sortedList.previous();
+				this.sortedList = new LinkedList<>(direction).listIterator(direction.size());
+				this.currentDirection = sortedList.previous();
+				setStam();
 			}
 		}
+		
+	}
+
+	private void start() {
+		List<Direction> findPath = new LinkedList<Direction>(Arrays.asList( Direction.LEFT, Direction.LEFT, Direction.DOWN, Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.UP));
+		if (!findPath.isEmpty()) {
+			this.direction = findPath;
+			if (direction != null && !direction.isEmpty()) {		
+				this.sortedList = new LinkedList<>(direction).listIterator(direction.size());
+				this.currentDirection = sortedList.previous();
+				setStam();
+			}
+		}
+		
+	}
+	
+	private void setStam() {
+		switch (currentDirection) {
+		case LEFT:
+			stam = getRectangle().width;
+			break;
+		case RIGHT:
+			stam = getRectangle().width;
+			break;
+		case UP:
+			stam = getRectangle().height;
+			break;
+		case DOWN:
+			stam = getRectangle().height;
+			break;
+		case STOP:
+			break;
+		}
+	}
+	
+	public void setStart(boolean start) {
+		if (start) {
+			start();
+		}
+		this.start = start;
+	}
+	
+	public boolean isStart() {
+		return start;
 	}
 }

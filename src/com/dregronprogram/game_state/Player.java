@@ -1,6 +1,10 @@
 package com.dregronprogram.game_state;
 
-import static com.dregronprogram.game_state.Direction.*;
+import static com.dregronprogram.game_state.Direction.DOWN;
+import static com.dregronprogram.game_state.Direction.LEFT;
+import static com.dregronprogram.game_state.Direction.RIGHT;
+import static com.dregronprogram.game_state.Direction.STOP;
+import static com.dregronprogram.game_state.Direction.UP;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -13,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import com.dregronprogram.application.Renderer;
 import com.dregronprogram.display.Display;
@@ -49,11 +52,8 @@ public class Player implements Renderer, KeyListener {
 
 	@Override
 	public void update(double delta) {
-		//TODO change this
 		if (isAboutToCollide()) {
-			while(!attemptChangeDirection()) {
-				queuedDirection = values()[new Random().nextInt(values().length)];
-			}
+			currentDirection = STOP;
 		}
 		
 		switch (currentDirection) {
@@ -68,6 +68,8 @@ public class Player implements Renderer, KeyListener {
 				break;
 			case DOWN:
 				getRectangle().y += speed;
+				break;
+			case STOP:
 				break;
 		}
 		attemptChangeDirection();
@@ -253,6 +255,10 @@ public class Player implements Renderer, KeyListener {
 					}
 				}
 				break;
+			case STOP:
+				break;
+			default:
+				break;
 			}
 		return false;
 	}
@@ -274,6 +280,10 @@ public class Player implements Renderer, KeyListener {
 				case DOWN:
 					playerAnimation.setRotation(Math.toDegrees(.1f));
 					break;
+			case STOP:
+				break;
+			default:
+				break;
 			
 			}
 			return true;
@@ -313,6 +323,10 @@ public class Player implements Renderer, KeyListener {
 					}
 				}
 				break;
+		case STOP:
+			break;
+		default:
+			break;
 		}
 		return true;
 	}
