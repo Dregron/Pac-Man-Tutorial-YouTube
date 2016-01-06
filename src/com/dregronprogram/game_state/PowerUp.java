@@ -1,21 +1,19 @@
 package com.dregronprogram.game_state;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import com.dregronprogram.application.Renderer;
 import com.dregronprogram.utils.TickTimer;
 
-public class Block implements Renderer {
+public class PowerUp implements Renderer {
 
 	private int xPos, yPos, width, height;
 	private BufferedImage image;
-	private Player player;
-	private TickTimer tickTimer = new TickTimer(10);
+	private TickTimer flash = new TickTimer(8);
 	private boolean toggle = false;
 	
-	public Block(int xPos, int yPos, int width, int height, BufferedImage image) {
+	public PowerUp(int xPos, int yPos, int width, int height, BufferedImage image) {
 		this.xPos = xPos;
 		this.yPos = yPos;
 		this.width = width;
@@ -25,22 +23,19 @@ public class Block implements Renderer {
 	
 	@Override
 	public void update(double delta) {
-		tickTimer.tick(delta);
+		flash.tick(delta);
 	}
 
 	@Override
 	public void draw(Graphics2D g) {
-//		if (getPlayer().isSuperPacMan()) {
-//			if (tickTimer.isEventReady()) {
-//				toggle = !toggle;
-//			} 
-//		}
+		if (flash.isEventReady()) {
+			toggle = !toggle;
+		}
+		
 		if (toggle) {
-			g.setXORMode(Color.LIGHT_GRAY);
-			g.drawImage(getImage(), getxPos(), getyPos(), getWidth(), getHeight(), null);
-			g.setPaintMode();
+			g.drawImage(getImage(), getxPos()-(getImage().getWidth()/2), getyPos()-(getImage().getHeight()/2), getImage().getWidth(), getImage().getHeight(), null);
 		} else {
-			g.drawImage(getImage(), getxPos(), getyPos(), getWidth(), getHeight(), null);
+			
 		}
 	}
 
@@ -82,13 +77,5 @@ public class Block implements Renderer {
 
 	public void setImage(BufferedImage image) {
 		this.image = image;
-	}
-	
-	public void setPlayer(Player player) {
-		this.player = player;
-	}
-	
-	public Player getPlayer() {
-		return player;
 	}
 }

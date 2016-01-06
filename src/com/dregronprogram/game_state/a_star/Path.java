@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.dregronprogram.application.Renderer;
+import com.dregronprogram.display.Display;
 import com.dregronprogram.game_state.Direction;
 import com.dregronprogram.utils.MathUtils;
 import com.dregronprogram.utils.Vector2;
@@ -16,8 +17,6 @@ import com.dregronprogram.utils.Vector2;
 public class Path implements Renderer {
 	
 	private Map<Vector2, Node> nodes = new HashMap<Vector2, Node>();
-	
-	
 
 	public Path(Map<Vector2, Node> nodes) {
 		this.nodes = nodes;
@@ -54,15 +53,7 @@ public class Path implements Renderer {
 		}
 		
 		while(!openNodes.isEmpty()) {
-			int f_score = Integer.MAX_VALUE;
-			Node n = null;
-			for (Node node : openNodes) {
-				if (node.getF_score() < f_score) {
-					f_score = node.getF_score();
-					n = node;
-				}
-			}
-			Node current = n;
+			Node current = getNodeWithLowestFScore(openNodes);
 			
 			closedNodes.add(current);
 			openNodes.remove(current);
@@ -70,16 +61,18 @@ public class Path implements Renderer {
 			if (MathUtils.isEqual(current.getxPos(), goalXPos, 0) && MathUtils.isEqual(current.getyPos(), goalYPos, 0)) {
 				queueDirection(queuedDirections, current);
 				for (Node node : current.getPrevNodesNode()) {
-					node.setColour(Color.CYAN);
 					queueDirection(queuedDirections, node);
 				}
 				break;
 			}
 			
+			current.setColour(Color.CYAN);
 			for (Node neighbor : getAdjacentBlocks(current)) {
+				
 				if (closedNodes.contains(neighbor)) {
 					continue;
 				}
+				neighbor.setColour(Color.CYAN);
 				int tentative_g_score = current.getG_score() + getDistanceBetween(current,neighbor);
 				if (!openNodes.contains(neighbor)) {
 					openNodes.add(neighbor);
@@ -97,16 +90,28 @@ public class Path implements Renderer {
 		}
 		return queuedDirections;
 	}
+	
+	private Node getNodeWithLowestFScore(List<Node> openNodes) {
+		int f_score = Integer.MAX_VALUE;
+		Node n = null;
+		for (Node node : openNodes) {
+			if (node.getF_score() < f_score) {
+				f_score = node.getF_score();
+				n = node;
+			}
+		}
+		return n;
+	}
 
 	private void queueDirection(List< Direction> queuedDirections, Node node) {
 		if (node.getNeighborX() == 1) {
-			queuedDirections.add(Direction.LEFT);
-		} else if (node.getNeighborX() == -1) {
 			queuedDirections.add(Direction.RIGHT);
+		} else if (node.getNeighborX() == -1) {
+			queuedDirections.add(Direction.LEFT);
 		} else if (node.getNeighborY() == -1) {
-			queuedDirections.add(Direction.DOWN);
-		} else if (node.getNeighborY() == 1) {
 			queuedDirections.add(Direction.UP);
+		} else if (node.getNeighborY() == 1) {
+			queuedDirections.add(Direction.DOWN);
 		}
 	}
 	
@@ -114,48 +119,54 @@ public class Path implements Renderer {
 		List<Node> bs = new ArrayList<Node>();
 		Vector2 vector = new Vector2(current.getWidth()-2, current.getHeight()-2);
 		vector.set(current.getxPos()+current.getWidth(), current.getyPos());
-		addAdjacentBlock(bs, vector);
+		addAdjacentBlock(current, bs, vector);
 		vector.set(current.getxPos()-current.getWidth(), current.getyPos());
-		addAdjacentBlock(bs, vector);
+		addAdjacentBlock(current, bs, vector);
 		vector.set(current.getxPos(), current.getyPos()+current.getHeight());
-		addAdjacentBlock(bs, vector);
+		addAdjacentBlock(current, bs, vector);
 		vector.set(current.getxPos(), current.getyPos()-current.getHeight());
-		addAdjacentBlock(bs, vector);
+		addAdjacentBlock(current, bs, vector);
 		return bs;
 	}
 	
-	private void check(Node current, List<Node> bs, Vector2 vector) {
-		vector.set(current.getxPos(), current.getyPos());
-		if (vector.equals(new Vector2(24*current.getWidth(), 9*current.getHeight(), current.getWidth()-2, current.getHeight()-2))) {
-			Node node = nodes.get(new Vector2(0, 9*current.getHeight(), current.getWidth()-2, current.getHeight()-2));
-			if (node != null) {
-				bs.add(node);
-			}
-		} else if (vector.equals(new Vector2(0, 9*current.getHeight(), current.getWidth()-2, current.getHeight()-2))) {
-			Node node = nodes.get(new Vector2(24*current.getWidth(), 9*current.getHeight(), current.getWidth()-2, current.getHeight()-2));
-			if (node != null) {
-				bs.add(node);
-			}
-		}
-	}
-
-	private void addAdjacentBlock(List<Node> bs, Vector2 vector) {
+	private void addAdjacentBlock(Node current, List<Node> bs, Vector2 vector) {
 		Node node = nodes.get(vector);
 		if (node != null) {
 			bs.add(node);
+		} else if (current.isAdjacentRightFloor()) {
+			vector.set(0, current.getyPos());
+			bs.add(nodes.get(vector));
+		} else if (current.isAdjacentLeftFloor()) {
+			vector.set((Display.WIDTH-current.getWidth()), current.getyPos());
+			bs.add(nodes.get(vector));
 		}
 	}
 	
 	private int getDX(Node current, Node neighbor) {
-		int targetX = current.getxPos() / current.getWidth();
-		int currentX = neighbor.getxPos() / current.getWidth();
-		return targetX - currentX;
+		int targetX = neighbor.getxPos() / neighbor.getWidth();
+		int currentX = current.getxPos() / current.getWidth();
+		int targetXRightMirror = (Display.WIDTH / neighbor.getWidth())+targetX;
+		int targetXLeftMirror = -(Display.WIDTH/neighbor.getWidth())+targetX;
+			
+		int normalTarget = targetX-currentX;
+		int rightMirrorTarget = targetXRightMirror-currentX;
+		int leftMirrorTarget = targetXLeftMirror-currentX;
+		   
+		if (Math.abs(normalTarget) <= Math.abs(rightMirrorTarget) && Math.abs(normalTarget) <= Math.abs(leftMirrorTarget)) {
+			return normalTarget;
+		} else if (Math.abs(leftMirrorTarget) <= Math.abs(rightMirrorTarget)) {
+			return leftMirrorTarget;
+		} else {                     
+			return rightMirrorTarget;
+		}
 	}
 	
 	private int getDY(Node current, Node neighbor) {
-		int targetY = current.getyPos() /  current.getHeight();
-		int currentY = neighbor.getyPos() / neighbor.getHeight();
-		return targetY - currentY; 
+		int targetY = neighbor.getyPos() /  neighbor.getHeight();
+		int currentY = current.getyPos() / current.getHeight();
+		int normalTarget = targetY-currentY;
+		
+		return normalTarget;
 	}
 	
 	private int getDistanceBetween(Node current, Node neighbor) {

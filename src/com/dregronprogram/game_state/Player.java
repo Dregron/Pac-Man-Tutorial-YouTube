@@ -33,11 +33,13 @@ public class Player implements Renderer, KeyListener {
 	
 	private Map<Vector2, Block> blocks = new HashMap<Vector2, Block>();
 	private Map<Vector2, Food> foods = new HashMap<Vector2, Food>();
+	private Map<Vector2, PowerUp> powerUps = new HashMap<Vector2, PowerUp>();
 	
 	private Font scoreFont = new Font("Arial", Font.ITALIC, 18);
 	private int SCORE = 0;
 	private int addScore;
 	private int health;
+	private boolean superPacMan;
 	
 	public Player(List<BufferedImage> playerImg) {
 		this.playerAnimation = new SpriteAnimation(0, 0, 8, playerImg);
@@ -74,6 +76,7 @@ public class Player implements Renderer, KeyListener {
 		}
 		attemptChangeDirection();
 		eatFood();
+		eatPowerUp();
 		playerAnimation.setxPos(getRectangle().x);
 		playerAnimation.setyPos(getRectangle().y);
 		playerAnimation.update(delta);
@@ -90,6 +93,16 @@ public class Player implements Renderer, KeyListener {
 		}
 	}
 
+	private void eatPowerUp() {
+		for (PowerUp powerUp : getAdjacentPowerUp())  {
+			if (getRectangle().intersects(powerUp.getxPos(), powerUp.getyPos(), powerUp.getWidth(), powerUp.getHeight())) {
+				addScore += 15;
+				powerUps.remove(new Vector2(powerUp.getxPos(), powerUp.getyPos(), 5, 5));
+				setSuperPacMan(true);
+			}
+		}
+	}
+	
 	private void eatFood() {
 		for (Food food : getAdjacentFoods())  {
 			if (getRectangle().intersects(food.getxPos(), food.getyPos(), food.getWidth(), food.getHeight())) {
@@ -156,8 +169,16 @@ public class Player implements Renderer, KeyListener {
 		return blocks;
 	}
 	
+	public Map<Vector2, PowerUp> getPowerUps() {
+		return powerUps;
+	}
+	
 	public Map<Vector2, Food> getFoods() {
 		return foods;
+	}
+	
+	public void setPowerUps(Map<Vector2, PowerUp> powerUps) {
+		this.powerUps = powerUps;
 	}
 	
 	public void setFoods(Map<Vector2, Food> foods) {
@@ -175,15 +196,20 @@ public class Player implements Renderer, KeyListener {
 		addAdjacentFood(bs, vector);
 		vector.set(getRectangle().x, getRectangle().y-getRectangle().height);
 		addAdjacentFood(bs, vector);
-		
-		vector.set(getRectangle().x+getRectangle().width, getRectangle().y+getRectangle().height);
-		addAdjacentFood(bs, vector);
-		vector.set(getRectangle().x-getRectangle().width, getRectangle().y-getRectangle().height);
-		addAdjacentFood(bs, vector);
-		vector.set(getRectangle().x-getRectangle().width, getRectangle().y+getRectangle().height);
-		addAdjacentFood(bs, vector);
-		vector.set(getRectangle().x+getRectangle().width, getRectangle().y-getRectangle().height);
-		addAdjacentFood(bs, vector);
+		return bs;
+	}
+	
+	private List<PowerUp> getAdjacentPowerUp() {
+		List<PowerUp> bs = new ArrayList<PowerUp>();
+		Vector2 vector = new Vector2(30, 28);
+		vector.set(getRectangle().x+getRectangle().width, getRectangle().y);
+		addAdjacentPowerUp(bs, vector);
+		vector.set(getRectangle().x-getRectangle().width, getRectangle().y);
+		addAdjacentPowerUp(bs, vector);
+		vector.set(getRectangle().x, getRectangle().y+getRectangle().height);
+		addAdjacentPowerUp(bs, vector);
+		vector.set(getRectangle().x, getRectangle().y-getRectangle().height);
+		addAdjacentPowerUp(bs, vector);
 		return bs;
 	}
 
@@ -191,6 +217,13 @@ public class Player implements Renderer, KeyListener {
 		Food food = foods.get(vector);
 		if (food != null) {
 			bs.add(food);
+		}
+	}
+	
+	private void addAdjacentPowerUp(List<PowerUp> bs, Vector2 vector) {
+		PowerUp powerUp = powerUps.get(vector);
+		if (powerUp != null) {
+			bs.add(powerUp);
 		}
 	}
 	
@@ -220,7 +253,6 @@ public class Player implements Renderer, KeyListener {
 	private void addAdjacentBlock(List<Block> bs, Vector2 vector) {
 		Block block = blocks.get(vector);
 		if (block != null) {
-			block.setColour(Color.MAGENTA);
 			bs.add(block);
 		}
 	}
@@ -329,5 +361,13 @@ public class Player implements Renderer, KeyListener {
 			break;
 		}
 		return true;
+	}
+	
+	public boolean isSuperPacMan() {
+		return superPacMan;
+	}
+	
+	public void setSuperPacMan(boolean superPacMan) {
+		this.superPacMan = superPacMan;
 	}
 }

@@ -11,6 +11,7 @@ import com.dregronprogram.game_state.Block;
 import com.dregronprogram.game_state.Food;
 import com.dregronprogram.game_state.GameState;
 import com.dregronprogram.game_state.Player;
+import com.dregronprogram.game_state.PowerUp;
 import com.dregronprogram.game_state.a_star.Node;
 import com.dregronprogram.game_state.ghost.Ghost;
 import com.dregronprogram.tiled_map.Layer;
@@ -28,6 +29,7 @@ public class Level_1 implements Level {
 	private Map<Vector2, Block> blocks = new HashMap<Vector2, Block>();
 	private Map<Vector2, Node> nodes = new HashMap<Vector2, Node>();
 	private Map<Vector2, Food> foods = new HashMap<Vector2, Food>();
+	private Map<Vector2, PowerUp> powerUps = new HashMap<Vector2, PowerUp>();
 	private List<Ghost> ghosts = new ArrayList<Ghost>();
 	private Player player;
 	private boolean ready;
@@ -55,6 +57,14 @@ public class Level_1 implements Level {
 				}
 			}
 		}
+		
+		for (Block block : blocks.values()) {
+			block.update(delta);
+		}
+		
+		for (PowerUp powerUp : powerUps.values()) {
+			powerUp.update(delta);
+		}
 	}
 
 	@Override
@@ -68,6 +78,10 @@ public class Level_1 implements Level {
 		
 		for (Food food : foods.values()) {
 			food.draw(g);
+		}
+		
+		for (PowerUp powerUp : powerUps.values()) {
+			powerUp.draw(g);
 		}
 		
 		for (Ghost ghost : ghosts) {
@@ -105,21 +119,18 @@ public class Level_1 implements Level {
 						int dataNum = layer.getData()[counter];
 						Property property = tileset.getTileproperties().get(dataNum-1);
 						if (property != null && property.getValue().equalsIgnoreCase("square")) {
-							blocks.put(new Vector2(x*getTiles().getTileWidth(), y*getTiles().getTileHeight(), 30, 28)
-										, new Block(x*getTiles().getTileWidth(), y*getTiles().getTileHeight(), getTiles().getTileWidth(), getTiles().getTileHeight(), spriteSheet.get(dataNum-1)));
-						
-//							nodes.put(new Vector2(x*getTiles().getTileWidth()
-//									, y*getTiles().getTileHeight()
-//									, getTiles().getTileWidth()-2
-//									, getTiles().getTileHeight()-2)
-//							,new Node(x*getTiles().getTileWidth()
-//									, y*getTiles().getTileHeight()
-//									, getTiles().getTileWidth()
-//									, getTiles().getTileHeight(), "block"));
+							int xPos = x*getTiles().getTileWidth();
+							int yPos = y*getTiles().getTileHeight();
+							blocks.put(new Vector2(xPos, yPos, 30, 28)
+										, new Block(xPos, yPos, getTiles().getTileWidth(), getTiles().getTileHeight(), spriteSheet.get(dataNum-1)));
 						}
 						if (property != null && property.getValue().equalsIgnoreCase("food")) {
 							foods.put(new Vector2((x*getTiles().getTileWidth()) + (getTiles().getTileWidth()/2), (y*getTiles().getTileHeight())+(getTiles().getTileHeight()/2), 5, 5), 
 									new Food((x*getTiles().getTileWidth()) + (getTiles().getTileWidth()/2), (y*getTiles().getTileHeight())+(getTiles().getTileHeight()/2), 5, 5, spriteSheet.get(dataNum-1)));
+						}
+						if (property != null && property.getValue().equalsIgnoreCase("powerUp")) {
+							powerUps.put(new Vector2((x*getTiles().getTileWidth()) + (getTiles().getTileWidth()/2), (y*getTiles().getTileHeight())+(getTiles().getTileHeight()/2), 5, 5), 
+									new PowerUp((x*getTiles().getTileWidth()) + (getTiles().getTileWidth()/2), (y*getTiles().getTileHeight())+(getTiles().getTileHeight()/2), 5, 5, spriteSheet.get(dataNum-1)));
 						}
 						if (property != null && property.getValue().equalsIgnoreCase("player")) {
 							player.setXPos(x*getTiles().getTileWidth());
@@ -140,15 +151,22 @@ public class Level_1 implements Level {
 					} else if (layer.getName().equals("Floor")) {
 						int dataNum = layer.getData()[counter];
 						Property property = tileset.getTileproperties().get(dataNum-1);
-						if (property != null && property.getValue().equalsIgnoreCase("floor")) {
+						if (property != null && property.getId().equalsIgnoreCase("floor")) {
+							Node node = new Node(x*getTiles().getTileWidth()
+									, y*getTiles().getTileHeight()
+									, getTiles().getTileWidth()
+									, getTiles().getTileHeight(), "floot");
+							
 							nodes.put(new Vector2(x*getTiles().getTileWidth()
 												, y*getTiles().getTileHeight()
 												, getTiles().getTileWidth()-2
 												, getTiles().getTileHeight()-2)
-									  ,new Node(x*getTiles().getTileWidth()
-												, y*getTiles().getTileHeight()
-												, getTiles().getTileWidth()
-												, getTiles().getTileHeight(), "floot"));
+									  , node);
+							if (property.getValue().equalsIgnoreCase("adjacentLeft")) {
+								node.setAdjacentLeftFloor(true);
+							} else if (property.getValue().equalsIgnoreCase("adjacentRight")) {
+								node.setAdjacentRightFloor(true);
+							} 
 						}
 					}
 				}
@@ -159,8 +177,12 @@ public class Level_1 implements Level {
 		
 		player.setBlocks(blocks);
 		player.setFoods(foods);
+		player.setPowerUps(powerUps);
 		for (Ghost ghost : ghosts) {
 			ghost.setPlayer(player);
+		}
+		for (Block block : blocks.values()) {
+			block.setPlayer(player);
 		}
 		ready = true;
 		spawn = new TickTimer(300);

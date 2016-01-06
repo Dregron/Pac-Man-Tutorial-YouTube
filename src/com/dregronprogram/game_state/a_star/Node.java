@@ -17,6 +17,7 @@ public class Node implements Renderer {
 	private int neighborX, neighborY;
 	private Color colour;
 	private int g_score = Integer.MAX_VALUE, f_score = Integer.MAX_VALUE;
+	private boolean adjacentLeftFloor, adjacentRightFloor;
 	
 	public Node(int xPos, int yPos, int width, int height, String name) {
 		this.xPos = xPos;
@@ -24,6 +25,8 @@ public class Node implements Renderer {
 		this.width = width;
 		this.height = height;
 		this.name = name;
+		this.adjacentLeftFloor = false;
+		this.adjacentRightFloor = false;
 	}
 	
 	public void setWidth(int width) {
@@ -109,8 +112,6 @@ public class Node implements Renderer {
 			g.setColor(getColour());
 			g.fillRect(xPos, yPos, width, height);
 		}
-		g.setColor(Color.WHITE);
-		g.drawString(getxPos() + "", getxPos(), getyPos());
 	}
 	
 	public void setColour(Color colour) {
@@ -136,5 +137,21 @@ public class Node implements Renderer {
 	
 	public int getG_score() {
 		return g_score;
+	}
+	
+	public void setAdjacentLeftFloor(boolean adjacentLeftFloor) {
+		this.adjacentLeftFloor = adjacentLeftFloor;
+	}
+	
+	public boolean isAdjacentLeftFloor() {
+		return adjacentLeftFloor;
+	}
+	
+	public void setAdjacentRightFloor(boolean adjacentRightFloor) {
+		this.adjacentRightFloor = adjacentRightFloor;
+	}
+	
+	public boolean isAdjacentRightFloor() {
+		return adjacentRightFloor;
 	}
 }

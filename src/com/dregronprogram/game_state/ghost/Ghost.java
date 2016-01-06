@@ -22,24 +22,65 @@ public class Ghost implements Renderer {
 	private List<Direction> direction = new LinkedList<Direction>();
 	private ListIterator<Direction> sortedList;
 	private BufferedImage ghostImage;
+	private BufferedImage scaredGhostImage;
 	private Rectangle rectangle;
 	private Path path;
 	private Direction currentDirection;
 	private int speed, stam;
 	private Player player;
 	private boolean start = false;
+	private GhostState ghostState;
 	
-	public Ghost(int xPos, int yPos, int width, int height, BufferedImage bufferedImage, Map<Vector2, Node> nodes) {
+	public Ghost(int xPos, int yPos, int width, int height, BufferedImage ghostImg, Map<Vector2, Node> nodes) {
 		this.setRectangle(new Rectangle(xPos, yPos, width, height));
 		this.setPath(new Path(nodes));
-		this.ghostImage = bufferedImage;
+		this.ghostImage = ghostImg;
+		this.ghostState = GhostState.IDLE;
 		this.speed = 2;
 	}
 
 	@Override
 	public void update(double delta) {
-		if (!isStart()) return;
-		
+
+		switch(getGhostState()) {
+		case ATTACK:
+			updateMovement();
+	 		if (direction.isEmpty()) {
+	 			findPath(player.getRectangle().x, player.getRectangle().y, player.getRectangle().width, player.getRectangle().height);
+	 		}
+	 		if (getRectangle().x > Display.WIDTH) {
+				getRectangle().x = -getRectangle().width;
+				findPath(player.getRectangle().x, player.getRectangle().y, player.getRectangle().width, player.getRectangle().height);
+			} else if (getRectangle().x <= -getRectangle().width) {
+				getRectangle().x = Display.WIDTH;
+				findPath(player.getRectangle().x, player.getRectangle().y, player.getRectangle().width, player.getRectangle().height);
+			}
+			break;
+		case IDLE:
+			updateGhostWhileIdle();
+			break;
+		case RANDOM:
+			break;
+		}
+	}
+
+	private void updateGhostWhileIdle() {
+		if (!isStart() || GhostState.IDLE.equals(getGhostState())) {
+			if (isStart() && direction.isEmpty()) {
+				setGhostState(GhostState.ATTACK);
+			}
+			
+			if (direction.isEmpty() && GhostState.IDLE.equals(getGhostState())) {
+				movement(Direction.DOWN, Direction.UP);
+			} else if (direction.isEmpty()) {
+				findPath(5*getRectangle().width, 9*getRectangle().height, getRectangle().width, getRectangle().height);
+			} else {
+				updateMovement();
+			}
+		}
+	}
+
+	private void updateMovement() {
 		if (currentDirection != null) {
 			switch (currentDirection) {
 			case LEFT:
@@ -70,21 +111,15 @@ public class Ghost implements Renderer {
 				direction.clear();
 			}
 		}
-		
- 		while (direction.isEmpty()) {
- 			findPath(player.getRectangle().x, player.getRectangle().y, player.getRectangle().width, player.getRectangle().height);
- 		}
- 		
- 		if (getRectangle().x > Display.WIDTH-getRectangle().width) {
-			getRectangle().x = 0;
-		} else if (getRectangle().x <= 0) {
-			getRectangle().x = Display.WIDTH-getRectangle().width;
-		}
 	}
 	
 	@Override
 	public void draw(Graphics2D g) {
-		g.drawImage(getGhostImage(), getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height, null);
+		if (getPlayer().isSuperPacMan()) {
+			g.drawImage(getGhostImage(), getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height, null);
+		} else {
+			g.drawImage(getGhostImage(), getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height, null);
+		}
 	}
 	
 	public BufferedImage getGhostImage() {
@@ -120,20 +155,14 @@ public class Ghost implements Renderer {
 		int dy = (targetYPos/height);
 		int targetX =dx*width;
 		int targetY = dy*height;
-		List<Direction> findPath = path.findPath(getRectangle().x, getRectangle().y, targetX, targetY, width, height);
-		if (!findPath.isEmpty()) {
-			this.direction = findPath;
-			if (direction != null && !direction.isEmpty()) {		
-				this.sortedList = new LinkedList<>(direction).listIterator(direction.size());
-				this.currentDirection = sortedList.previous();
-				setStam();
-			}
-		}
-		
+		setPathIfValid(path.findPath(getRectangle().x, getRectangle().y, targetX, targetY, width, height));
 	}
 
-	private void start() {
-		List<Direction> findPath = new LinkedList<Direction>(Arrays.asList( Direction.LEFT, Direction.LEFT, Direction.DOWN, Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.LEFT, Direction.UP));
+	private void movement(Direction... directions) {
+		setPathIfValid(new LinkedList<Direction>(Arrays.asList(directions)));
+	}
+
+	private void setPathIfValid(List<Direction> findPath) {
 		if (!findPath.isEmpty()) {
 			this.direction = findPath;
 			if (direction != null && !direction.isEmpty()) {		
@@ -141,8 +170,9 @@ public class Ghost implements Renderer {
 				this.currentDirection = sortedList.previous();
 				setStam();
 			}
+		} else {
+			throw new RuntimeException("Path finding fucked up!");
 		}
-		
 	}
 	
 	private void setStam() {
@@ -165,13 +195,18 @@ public class Ghost implements Renderer {
 	}
 	
 	public void setStart(boolean start) {
-		if (start) {
-			start();
-		}
 		this.start = start;
 	}
 	
 	public boolean isStart() {
 		return start;
+	}
+	
+	public GhostState getGhostState() {
+		return ghostState;
+	}
+	
+	public void setGhostState(GhostState ghostState) {
+		this.ghostState = ghostState;
 	}
 }
