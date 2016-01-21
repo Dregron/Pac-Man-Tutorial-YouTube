@@ -1,8 +1,7 @@
 package com.dregronprogram.tiled_map;
 
-import java.io.IOException;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 public class TiledMap {
 
@@ -10,12 +9,17 @@ public class TiledMap {
 	
 	public TiledMap(String path) {
 
+		long start = System.currentTimeMillis();
 		try {
 			this.tiledMap = new ObjectMapper().readValue(TiledMap.class.getResource(path), Tiled.class);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		long end = System.currentTimeMillis() - start;
+		System.err.println("Time took: " + end);
 	}
+	
+	
 	
 	public Tiled getTiled() {
 		return tiledMap;

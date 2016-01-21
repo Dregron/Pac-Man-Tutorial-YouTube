@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Random;
 
 import com.dregronprogram.application.Renderer;
 import com.dregronprogram.display.Display;
@@ -23,13 +24,15 @@ public class Ghost implements Renderer {
 	private ListIterator<Direction> sortedList;
 	private BufferedImage ghostImage;
 	private BufferedImage scaredGhostImage;
+	private BufferedImage eyesImage;
 	private Rectangle rectangle;
 	private Path path;
 	private Direction currentDirection;
-	private int speed, stam;
+	private int speed;
 	private Player player;
 	private boolean start = false;
 	private GhostState ghostState;
+	private boolean resetGhost = false, reseting = false;
 	
 	public Ghost(int xPos, int yPos, int width, int height, BufferedImage ghostImg, Map<Vector2, Node> nodes) {
 		this.setRectangle(new Rectangle(xPos, yPos, width, height));
@@ -47,27 +50,34 @@ public class Ghost implements Renderer {
 			updateMovement();
 	 		if (direction.isEmpty()) {
 	 			findPath(player.getRectangle().x, player.getRectangle().y, player.getRectangle().width, player.getRectangle().height);
+	 			if (isReseting()) {
+	 				setReseting(false);
+	 			}
 	 		}
-	 		if (getRectangle().x > Display.WIDTH) {
-				getRectangle().x = -getRectangle().width;
-				findPath(player.getRectangle().x, player.getRectangle().y, player.getRectangle().width, player.getRectangle().height);
-			} else if (getRectangle().x <= -getRectangle().width) {
-				getRectangle().x = Display.WIDTH;
-				findPath(player.getRectangle().x, player.getRectangle().y, player.getRectangle().width, player.getRectangle().height);
-			}
 			break;
 		case IDLE:
 			updateGhostWhileIdle();
 			break;
 		case RANDOM:
+			updateMovement();
+			if (direction.isEmpty()) {
+				Random r = new Random();
+	 			findPath(r.nextInt(Display.WIDTH-getRectangle().width)+getRectangle().width, r.nextInt(Display.HEIGHT-getRectangle().height)+getRectangle().height, player.getRectangle().width, player.getRectangle().height);
+	 		}
 			break;
+		}
+		
+		if (getRectangle().x > Display.WIDTH-getWidth()) {
+			getRectangle().x = getWidth();
+		} else if (getRectangle().x <= -getWidth()) {
+			getRectangle().x = Display.WIDTH-getWidth();
 		}
 	}
 
 	private void updateGhostWhileIdle() {
 		if (!isStart() || GhostState.IDLE.equals(getGhostState())) {
 			if (isStart() && direction.isEmpty()) {
-				setGhostState(GhostState.ATTACK);
+				setGhostState(GhostState.RANDOM);
 			}
 			
 			if (direction.isEmpty() && GhostState.IDLE.equals(getGhostState())) {
@@ -84,38 +94,49 @@ public class Ghost implements Renderer {
 		if (currentDirection != null) {
 			switch (currentDirection) {
 			case LEFT:
-				getRectangle().x -= speed;
-				stam -= speed;
+				getRectangle().x -= getWidth();
 				break;
 			case RIGHT:
-				getRectangle().x += speed;
-				stam -= speed;
+				getRectangle().x += getWidth();
 				break;
 			case UP:
-				getRectangle().y -= speed;
-				stam -= speed;
+				getRectangle().y -= getHeight();
 				break;
 			case DOWN:
-				getRectangle().y += speed;
-				stam -= speed;
+				getRectangle().y += getHeight();
 				break;
 			case STOP:
 				break;
 			}
 			
-			if (sortedList.hasPrevious() && stam == 0) {
-				currentDirection = sortedList.previous();
-				setStam();
-			} else if (!sortedList.hasPrevious() && stam == 0) {
-				currentDirection = null;
-				direction.clear();
+			if (sortedList.hasPrevious()) {
+				if (!isPathGhostReseting()) {
+					currentDirection = sortedList.previous();
+				}
+			} else if (!sortedList.hasPrevious()) {
+				if (!isPathGhostReseting()) {
+					currentDirection = null;
+					direction.clear();
+				}
 			}
 		}
+	}
+	
+	private boolean isPathGhostReseting() {
+		if (isResetGhost()) {
+			findPath(12*getRectangle().width, 9*getRectangle().height, getRectangle().width, getRectangle().height);
+			setReseting(true);
+			setResetGhost(false);
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
 	public void draw(Graphics2D g) {
 		if (getPlayer().isSuperPacMan()) {
+			g.drawImage(getGhostImage(), getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height, null);
+		} else if (isReseting()) {
 			g.drawImage(getGhostImage(), getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height, null);
 		} else {
 			g.drawImage(getGhostImage(), getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height, null);
@@ -155,7 +176,7 @@ public class Ghost implements Renderer {
 		int dy = (targetYPos/height);
 		int targetX =dx*width;
 		int targetY = dy*height;
-		setPathIfValid(path.findPath(getRectangle().x, getRectangle().y, targetX, targetY, width, height));
+		setPathIfValid(path.findPath(getRectangle().x, getRectangle().y, targetX, targetY));
 	}
 
 	private void movement(Direction... directions) {
@@ -168,30 +189,24 @@ public class Ghost implements Renderer {
 			if (direction != null && !direction.isEmpty()) {		
 				this.sortedList = new LinkedList<>(direction).listIterator(direction.size());
 				this.currentDirection = sortedList.previous();
-				setStam();
 			}
-		} else {
-			throw new RuntimeException("Path finding fucked up!");
-		}
+		} 
 	}
 	
-	private void setStam() {
-		switch (currentDirection) {
-		case LEFT:
-			stam = getRectangle().width;
-			break;
-		case RIGHT:
-			stam = getRectangle().width;
-			break;
-		case UP:
-			stam = getRectangle().height;
-			break;
-		case DOWN:
-			stam = getRectangle().height;
-			break;
-		case STOP:
-			break;
-		}
+	public int getCenterXPos() {
+		return getRectangle().x+(getRectangle().width/2);
+	}
+	
+	public int getCenterYPos() {
+		return getRectangle().y+(getRectangle().height/2);
+	}
+	
+	public int getWidth() {
+		return getRectangle().width;
+	}
+	
+	public int getHeight() {
+		return getRectangle().height;
 	}
 	
 	public void setStart(boolean start) {
@@ -208,5 +223,21 @@ public class Ghost implements Renderer {
 	
 	public void setGhostState(GhostState ghostState) {
 		this.ghostState = ghostState;
+	}
+	
+	public void setResetGhost(boolean resetGhost) {
+		this.resetGhost = resetGhost;
+	}
+	
+	public boolean isResetGhost() {
+		return resetGhost;
+	}
+	
+	public void setReseting(boolean reseting) {
+		this.reseting = reseting;
+	}
+	
+	public boolean isReseting() {
+		return reseting;
 	}
 }

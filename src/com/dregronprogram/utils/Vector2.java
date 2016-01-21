@@ -4,18 +4,18 @@ import static com.dregronprogram.utils.MathUtils.isEqual;
 
 public class Vector2 {
 
-	private int xPos, yPos, width, height;
+	private int xPos, yPos, xTolerances, yTolerances;
 	
-	public Vector2(int width, int height) {
-		this.width = width;
-		this.height = height;
+	public Vector2(int xTolerances, int yTolerances) {
+		this.xTolerances = xTolerances;
+		this.yTolerances = yTolerances;
 	}
 	
-	public Vector2(int xPos, int yPos, int width, int height) {
+	public Vector2(int xPos, int yPos, int xTolerances, int yTolerances) {
 		this.xPos = xPos;
 		this.yPos = yPos;
-		this.width = width;
-		this.height = height;
+		this.xTolerances = xTolerances;
+		this.yTolerances = yTolerances;
 	}
 	
 	public void set(int xPos, int yPos) {
@@ -39,19 +39,19 @@ public class Vector2 {
 		this.yPos = yPos;
 	}
 	
-	public int getWidth() {
-		return width;
+	public int getXTolerances() {
+		return xTolerances;
 	}
 	
-	public int getHeight() {
-		return height;
+	public int getYTolerances() {
+		return yTolerances;
 	}
 	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Vector2) {
 			Vector2 equalObj = (Vector2) obj;
-			return isEqual(getxPos(), equalObj.getxPos(), getWidth()) && isEqual(getyPos(), equalObj.getyPos(), getHeight());
+			return isEqual(getxPos(), equalObj.getxPos(), getXTolerances()) && isEqual(getyPos(), equalObj.getyPos(), getYTolerances());
 		}
 		return super.equals(obj);
 	}

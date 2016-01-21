@@ -35,14 +35,17 @@ public class Path implements Renderer {
 	public Map<Vector2, Node> getNodes() {
 		return nodes;
 	}
-	
-	public List<Direction> findPath(int startXPos, int startYPos, int goalXPos, int goalYPos, int width, int height) {
+		
+	public List<Direction> findPath(int startXPos, int startYPos, int goalXPos, int goalYPos) {
+		if  (!nodes.containsKey(new Vector2(goalXPos, goalYPos, 0, 0)) || !nodes.containsKey(new Vector2(startXPos, startYPos, 0, 0))) 
+			return new LinkedList<Direction>();
+		
 		List<Direction> queuedDirections = new LinkedList<Direction>();
 		List<Node> openNodes = new LinkedList<Node>();
 		List<Node> closedNodes = new LinkedList<Node>();
 		Node startNode, goalNode;
-		startNode = new Node(startXPos, startYPos, width, height, "start");
-		goalNode = new Node(goalXPos, goalYPos, width, height, "goal");
+		startNode = nodes.get(new Vector2(startXPos, startYPos, 0, 0));
+		goalNode = nodes.get(new Vector2(goalXPos, goalYPos, 0, 0));
 		startNode.setG_score(0);
 		startNode.setF_score(getDistanceBetween(startNode, goalNode));
 		openNodes.add(startNode);
@@ -117,7 +120,7 @@ public class Path implements Renderer {
 	
 	private List<Node> getAdjacentBlocks(Node current) {
 		List<Node> bs = new ArrayList<Node>();
-		Vector2 vector = new Vector2(current.getWidth()-2, current.getHeight()-2);
+		Vector2 vector = new Vector2(0, 0);
 		vector.set(current.getxPos()+current.getWidth(), current.getyPos());
 		addAdjacentBlock(current, bs, vector);
 		vector.set(current.getxPos()-current.getWidth(), current.getyPos());
@@ -130,16 +133,16 @@ public class Path implements Renderer {
 	}
 	
 	private void addAdjacentBlock(Node current, List<Node> bs, Vector2 vector) {
-		Node node = nodes.get(vector);
-		if (node != null) {
-			bs.add(node);
-		} else if (current.isAdjacentRightFloor()) {
-			vector.set(0, current.getyPos());
-			bs.add(nodes.get(vector));
-		} else if (current.isAdjacentLeftFloor()) {
-			vector.set((Display.WIDTH-current.getWidth()), current.getyPos());
+		if (nodes.containsKey(vector)) {
 			bs.add(nodes.get(vector));
 		}
+//		else if (current.isAdjacentRightFloor()) {
+//			vector.set(0, current.getyPos());
+//			bs.add(nodes.get(vector));
+//		} else if (current.isAdjacentLeftFloor()) {
+//			vector.set((Display.WIDTH-current.getWidth()), current.getyPos());
+//			bs.add(nodes.get(vector));
+//		}
 	}
 	
 	private int getDX(Node current, Node neighbor) {
@@ -152,13 +155,20 @@ public class Path implements Renderer {
 		int rightMirrorTarget = targetXRightMirror-currentX;
 		int leftMirrorTarget = targetXLeftMirror-currentX;
 		   
-		if (Math.abs(normalTarget) <= Math.abs(rightMirrorTarget) && Math.abs(normalTarget) <= Math.abs(leftMirrorTarget)) {
-			return normalTarget;
-		} else if (Math.abs(leftMirrorTarget) <= Math.abs(rightMirrorTarget)) {
-			return leftMirrorTarget;
-		} else {                     
-			return rightMirrorTarget;
-		}
+		return normalTarget;
+//		if (Math.abs(normalTarget) <= Math.abs(rightMirrorTarget) && Math.abs(normalTarget) <= Math.abs(leftMirrorTarget)) {
+//			return normalTarget;
+//		} else if (Math.abs(leftMirrorTarget) <= Math.abs(rightMirrorTarget)) {
+//			if (leftMirrorTarget == 1) {
+//				throw new RuntimeException("left wrong direction");
+//			}
+//			return leftMirrorTarget;
+//		} else {  
+//			if (rightMirrorTarget == -1) {
+//				throw new RuntimeException("rightwrong direction");
+//			}
+//			return rightMirrorTarget;
+//		}
 	}
 	
 	private int getDY(Node current, Node neighbor) {

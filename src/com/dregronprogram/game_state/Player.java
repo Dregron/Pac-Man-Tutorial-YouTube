@@ -21,6 +21,7 @@ import java.util.Map;
 import com.dregronprogram.application.Renderer;
 import com.dregronprogram.display.Display;
 import com.dregronprogram.utils.SpriteAnimation;
+import com.dregronprogram.utils.TickTimer;
 import com.dregronprogram.utils.Vector2;
 
 public class Player implements Renderer, KeyListener {
@@ -40,6 +41,7 @@ public class Player implements Renderer, KeyListener {
 	private int addScore;
 	private int health;
 	private boolean superPacMan;
+	private TickTimer superTimer;
 	
 	public Player(List<BufferedImage> playerImg) {
 		this.playerAnimation = new SpriteAnimation(0, 0, 8, playerImg);
@@ -50,6 +52,7 @@ public class Player implements Renderer, KeyListener {
 		this.currentDirection = RIGHT;
 	
 		this.playerAnimation.setLoop(true);
+		this.superTimer = new TickTimer(300);
 	}
 
 	@Override
@@ -76,7 +79,7 @@ public class Player implements Renderer, KeyListener {
 		}
 		attemptChangeDirection();
 		eatFood();
-		eatPowerUp();
+		powerLogic(delta);
 		playerAnimation.setxPos(getRectangle().x);
 		playerAnimation.setyPos(getRectangle().y);
 		playerAnimation.update(delta);
@@ -93,12 +96,19 @@ public class Player implements Renderer, KeyListener {
 		}
 	}
 
-	private void eatPowerUp() {
+	private void powerLogic(double delta) {
 		for (PowerUp powerUp : getAdjacentPowerUp())  {
 			if (getRectangle().intersects(powerUp.getxPos(), powerUp.getyPos(), powerUp.getWidth(), powerUp.getHeight())) {
 				addScore += 15;
 				powerUps.remove(new Vector2(powerUp.getxPos(), powerUp.getyPos(), 5, 5));
 				setSuperPacMan(true);
+			}
+		}
+		
+		if (isSuperPacMan()) {
+			superTimer.tick(delta);
+			if (superTimer.isEventReady()) {
+				setSuperPacMan(false);
 			}
 		}
 	}
