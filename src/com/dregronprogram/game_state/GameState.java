@@ -61,7 +61,6 @@ public class GameState extends State implements KeyListener {
 		if (getLevelHandler().levelReady()) {
 			
 			getLevelHandler().update(delta);
-			getPlayer().update(delta);
 		} else if (isLevelBegining()) {
 							
 			setBeginLevel(false);
@@ -73,7 +72,6 @@ public class GameState extends State implements KeyListener {
 		if (!getLevelHandler().levelReady()) return;
 		
 		getLevelHandler().draw(g);
-		getPlayer().draw(g);
 	}
 
 	@Override

@@ -32,29 +32,46 @@ public class Level_1 implements Level {
 	private Map<Vector2, PowerUp> powerUps = new HashMap<Vector2, PowerUp>();
 	private List<Ghost> ghosts = new ArrayList<Ghost>();
 	private Player player;
-	private boolean ready;
-	private TickTimer spawn;
+	private Ghost resetGhost;
+	private boolean ready, pause;
+	private TickTimer spawn, pauseTimer;
 	
 	public Level_1(Map<Integer, BufferedImage> spriteSheet, Player player) {
 		this.spriteSheet = spriteSheet;
 		this.player = player;
 		this.ready = false;
+		this.pause = false;
+		this.pauseTimer = new TickTimer(60);
 	}
 	
 	@Override
 	public void update(double delta) {
-		
-		for (Ghost ghost : ghosts) {
-			ghost.update(delta);
+		if (pause) {
+			pauseTimer.tick(delta);
+			if (pauseTimer.isEventReady()) {
+				setPause(false);
+				resetGhost = null;
+			} else {
+				resetGhost.update(delta);
+			}
+			return;
 		}
 		
+		getPlayer().update(delta);
+		
 		spawn.tick(delta);
-		if (spawn.isEventReady()) {
-			for (Ghost ghost : ghosts) {
-				if (!ghost.isStart()) {
-					ghost.setStart(true);
-					break;
-				}
+		for (Ghost ghost : ghosts) {
+			ghost.update(delta);
+			if (getPlayer().isSuperPacMan() 
+					&& !ghost.isResetGhost() 
+					&& !ghost.isReseting() 
+					&& player.getRectangle().intersects(ghost.getCenterXPos()-(ghost.getWidth()/4), ghost.getCenterYPos()-(ghost.getHeight()/4), ghost.getWidth()/2, ghost.getHeight()/2)) {
+				ghost.setResetGhost(true);
+				setPause(true);
+				resetGhost = ghost;
+			}
+			if (!ghost.isStart() && spawn.isEventReady()) {
+				ghost.setStart(true);
 			}
 		}
 		
@@ -69,6 +86,8 @@ public class Level_1 implements Level {
 
 	@Override
 	public void draw(Graphics2D g) {
+		
+		getPlayer().draw(g);
 		
 		if (GameState.debugMode) {
 			for (Node node : nodes.values()) {
@@ -155,7 +174,7 @@ public class Level_1 implements Level {
 							Node node = new Node(x*getTiles().getTileWidth()
 									, y*getTiles().getTileHeight()
 									, getTiles().getTileWidth()
-									, getTiles().getTileHeight(), "floot");
+									, getTiles().getTileHeight(), "floor");
 							
 							nodes.put(new Vector2(x*getTiles().getTileWidth()
 												, y*getTiles().getTileHeight()
@@ -191,9 +210,21 @@ public class Level_1 implements Level {
 	private Tiled getTiles() {
 		return tiledmap.getTiled();
 	}
+	
+	public Player getPlayer() {
+		return player;
+	}
 
 	@Override
 	public boolean levelReady() {
 		return ready;
+	}
+	
+	public void setPause(boolean pause) {
+		this.pause = pause;
+	}
+	
+	public boolean isPause() {
+		return pause;
 	}
 }
