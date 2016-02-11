@@ -15,7 +15,6 @@ import com.dregronprogram.game_state.PowerUp;
 import com.dregronprogram.game_state.a_star.Node;
 import com.dregronprogram.game_state.ghost.Ghost;
 import com.dregronprogram.tiled_map.Layer;
-import com.dregronprogram.tiled_map.Property;
 import com.dregronprogram.tiled_map.Tiled;
 import com.dregronprogram.tiled_map.TiledMap;
 import com.dregronprogram.tiled_map.Tileset;
@@ -136,54 +135,54 @@ public class Level_1 implements Level {
 					
 					if (layer.getName().equals("Map")) {
 						int dataNum = layer.getData()[counter];
-						Property property = tileset.getTileproperties().get(dataNum-1);
-						if (property != null && property.getValue().equalsIgnoreCase("square")) {
-							int xPos = x*getTiles().getTileWidth();
-							int yPos = y*getTiles().getTileHeight();
+						Map<String, String> property = tileset.getTileproperties().get(dataNum-1);
+						if (property != null && property.containsValue("square")) {
+							int xPos = x*getTiles().getTilewidth();
+							int yPos = y*getTiles().getTileheight();
 							blocks.put(new Vector2(xPos, yPos, 30, 28)
-										, new Block(xPos, yPos, getTiles().getTileWidth(), getTiles().getTileHeight(), spriteSheet.get(dataNum-1)));
+										, new Block(xPos, yPos, getTiles().getTilewidth(), getTiles().getTileheight(), spriteSheet.get(dataNum-1)));
 						}
-						if (property != null && property.getValue().equalsIgnoreCase("food")) {
-							foods.put(new Vector2((x*getTiles().getTileWidth()) + (getTiles().getTileWidth()/2), (y*getTiles().getTileHeight())+(getTiles().getTileHeight()/2), 5, 5), 
-									new Food((x*getTiles().getTileWidth()) + (getTiles().getTileWidth()/2), (y*getTiles().getTileHeight())+(getTiles().getTileHeight()/2), 5, 5, spriteSheet.get(dataNum-1)));
+						if (property != null && property.containsValue("food")) {
+							foods.put(new Vector2((x*getTiles().getTilewidth()) + (getTiles().getTilewidth()/2), (y*getTiles().getTileheight())+(getTiles().getTileheight()/2), 5, 5), 
+									new Food((x*getTiles().getTilewidth()) + (getTiles().getTilewidth()/2), (y*getTiles().getTileheight())+(getTiles().getTileheight()/2), 5, 5, spriteSheet.get(dataNum-1)));
 						}
-						if (property != null && property.getValue().equalsIgnoreCase("powerUp")) {
-							powerUps.put(new Vector2((x*getTiles().getTileWidth()) + (getTiles().getTileWidth()/2), (y*getTiles().getTileHeight())+(getTiles().getTileHeight()/2), 5, 5), 
-									new PowerUp((x*getTiles().getTileWidth()) + (getTiles().getTileWidth()/2), (y*getTiles().getTileHeight())+(getTiles().getTileHeight()/2), 5, 5, spriteSheet.get(dataNum-1)));
+						if (property != null && property.containsValue("powerUp")) {
+							powerUps.put(new Vector2((x*getTiles().getTilewidth()) + (getTiles().getTilewidth()/2), (y*getTiles().getTileheight())+(getTiles().getTileheight()/2), 5, 5), 
+									new PowerUp((x*getTiles().getTilewidth()) + (getTiles().getTilewidth()/2), (y*getTiles().getTileheight())+(getTiles().getTileheight()/2), 5, 5, spriteSheet.get(dataNum-1)));
 						}
-						if (property != null && property.getValue().equalsIgnoreCase("player")) {
-							player.setXPos(x*getTiles().getTileWidth());
-							player.setYPos(y*getTiles().getTileHeight());
+						if (property != null && property.containsValue("player")) {
+							player.setXPos(x*getTiles().getTilewidth());
+							player.setYPos(y*getTiles().getTileheight());
 						}
 					} else if (layer.getName().equals("Ghosts")) {
 						int dataNum = layer.getData()[counter];
-						Property property = tileset.getTileproperties().get(dataNum-1);
-						if (property != null && property.getId().equalsIgnoreCase("Ghost")) {
-							Ghost ghost = new Ghost(  x*getTiles().getTileWidth()
-													, y*getTiles().getTileHeight()
-													, getTiles().getTileWidth()
-													, getTiles().getTileHeight()
-													, spriteSheet.get(Integer.valueOf(property.getValue()))
+						Map<String, String> property = tileset.getTileproperties().get(dataNum-1);
+						if (property != null && property.containsKey("Ghost")) {
+							Ghost ghost = new Ghost(  x*getTiles().getTilewidth()
+													, y*getTiles().getTileheight()
+													, getTiles().getTilewidth()
+													, getTiles().getTileheight()
+													, spriteSheet.get(Integer.valueOf(property.get("Ghost")))
 													, nodes);
 							ghosts.add(ghost);
 						}
 					} else if (layer.getName().equals("Floor")) {
 						int dataNum = layer.getData()[counter];
-						Property property = tileset.getTileproperties().get(dataNum-1);
-						if (property != null && property.getId().equalsIgnoreCase("floor")) {
-							Node node = new Node(x*getTiles().getTileWidth()
-									, y*getTiles().getTileHeight()
-									, getTiles().getTileWidth()
-									, getTiles().getTileHeight(), "floor");
+						Map<String, String> property = tileset.getTileproperties().get(dataNum-1);
+						if (property != null && property.containsKey("floor")) {
+							Node node = new Node(x*getTiles().getTilewidth()
+									, y*getTiles().getTileheight()
+									, getTiles().getTilewidth()
+									, getTiles().getTileheight(), "floor");
 							
-							nodes.put(new Vector2(x*getTiles().getTileWidth()
-												, y*getTiles().getTileHeight()
-												, getTiles().getTileWidth()-2
-												, getTiles().getTileHeight()-2)
+							nodes.put(new Vector2(x*getTiles().getTilewidth()
+												, y*getTiles().getTileheight()
+												, getTiles().getTilewidth()-2
+												, getTiles().getTileheight()-2)
 									  , node);
-							if (property.getValue().equalsIgnoreCase("adjacentLeft")) {
+							if (property.get("floor").equalsIgnoreCase("adjacentLeft")) {
 								node.setAdjacentLeftFloor(true);
-							} else if (property.getValue().equalsIgnoreCase("adjacentRight")) {
+							} else if (property.get("floor").equalsIgnoreCase("adjacentRight")) {
 								node.setAdjacentRightFloor(true);
 							} 
 						}

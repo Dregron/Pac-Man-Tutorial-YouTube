@@ -1,7 +1,9 @@
 package com.dregronprogram.tiled_map;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.FileReader;
 
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonReader;
 
 public class TiledMap {
 
@@ -11,7 +13,8 @@ public class TiledMap {
 
 		long start = System.currentTimeMillis();
 		try {
-			this.tiledMap = new ObjectMapper().readValue(TiledMap.class.getResource(path), Tiled.class);
+			JsonReader reader = new JsonReader(new FileReader(TiledMap.class.getResource(path).getPath()));
+			this.tiledMap = new Gson().fromJson(reader, Tiled.class);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

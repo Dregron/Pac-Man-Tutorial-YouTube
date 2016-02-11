@@ -1,17 +1,11 @@
 package com.dregronprogram.tiled_map;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-@JsonIgnoreProperties(ignoreUnknown=true)
 public class Tiled {
 
 	private int width;
 	private int height;
-	@JsonProperty("tilewidth")
-	private int tileWidth;
-	@JsonProperty("tileheight")
-	private int tileHeight;
+	private int tilewidth;
+	private int tileheight;
 	
 	private Layer[] layers;
 	
@@ -58,20 +52,20 @@ public class Tiled {
 	public void setHeight(int height) {
 		this.height = height;
 	}
-	
-	public int getTileWidth() {
-		return tileWidth;
+
+	public int getTileheight() {
+		return tileheight;
 	}
 	
-	public void setTileWidth(int tileWidth) {
-		this.tileWidth = tileWidth;
+	public void setTileheight(int tileheight) {
+		this.tileheight = tileheight;
 	}
 	
-	public int getTileHeight() {
-		return tileHeight;
+	public int getTilewidth() {
+		return tilewidth;
 	}
 	
-	public void setTileHeight(int tileHeight) {
-		this.tileHeight = tileHeight;
+	public void setTilewidth(int tilewidth) {
+		this.tilewidth = tilewidth;
 	}
 }
