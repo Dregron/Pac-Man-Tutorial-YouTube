@@ -11,7 +11,6 @@ public class Block implements Renderer {
 
 	private int xPos, yPos, width, height;
 	private BufferedImage image;
-	private Player player;
 	private TickTimer tickTimer = new TickTimer(10);
 	private boolean toggle = false;
 	
@@ -30,11 +29,6 @@ public class Block implements Renderer {
 
 	@Override
 	public void draw(Graphics2D g) {
-//		if (getPlayer().isSuperPacMan()) {
-//			if (tickTimer.isEventReady()) {
-//				toggle = !toggle;
-//			} 
-//		}
 		if (toggle) {
 			g.setXORMode(Color.LIGHT_GRAY);
 			g.drawImage(getImage(), getxPos(), getyPos(), getWidth(), getHeight(), null);
@@ -84,11 +78,4 @@ public class Block implements Renderer {
 		this.image = image;
 	}
 	
-	public void setPlayer(Player player) {
-		this.player = player;
-	}
-	
-	public Player getPlayer() {
-		return player;
-	}
 }

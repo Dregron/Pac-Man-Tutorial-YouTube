@@ -5,7 +5,7 @@ import static com.dregronprogram.utils.MathUtils.isEqual;
 public class Vector2 {
 
 	private int xPos, yPos, xTolerances, yTolerances;
-	
+
 	public Vector2(int xTolerances, int yTolerances) {
 		this.xTolerances = xTolerances;
 		this.yTolerances = yTolerances;
@@ -27,16 +27,8 @@ public class Vector2 {
 		return xPos;
 	}
 	
-	public void setxPos(int xPos) {
-		this.xPos = xPos;
-	}
-	
 	public int getyPos() {
 		return yPos;
-	}
-	
-	public void setyPos(int yPos) {
-		this.yPos = yPos;
 	}
 	
 	public int getXTolerances() {

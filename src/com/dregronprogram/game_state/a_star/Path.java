@@ -2,11 +2,7 @@ package com.dregronprogram.game_state.a_star;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.dregronprogram.application.Renderer;
 import com.dregronprogram.display.Display;
@@ -16,7 +12,7 @@ import com.dregronprogram.utils.Vector2;
 
 public class Path implements Renderer {
 	
-	private Map<Vector2, Node> nodes = new HashMap<Vector2, Node>();
+	private Map<Vector2, Node> nodes = new HashMap<>();
 
 	public Path(Map<Vector2, Node> nodes) {
 		this.nodes = nodes;
@@ -35,12 +31,15 @@ public class Path implements Renderer {
 	public Map<Vector2, Node> getNodes() {
 		return nodes;
 	}
-		
-	public List<Direction> findPath(int startXPos, int startYPos, int goalXPos, int goalYPos) {
-		if  (!nodes.containsKey(new Vector2(goalXPos, goalYPos, 0, 0)) || !nodes.containsKey(new Vector2(startXPos, startYPos, 0, 0))) 
-			return new LinkedList<Direction>();
-		
-		List<Direction> queuedDirections = new LinkedList<Direction>();
+
+	public List<Node> findRandomPath(int startXPos, int startYPos) {
+		Node[] nodeArray = new Node[nodes.size()];
+		Node node = nodes.values().toArray(nodeArray)[new Random().nextInt(nodes.size()-1)];
+		return findPath(startXPos, startYPos, node.getxPos(), node.getyPos());
+	}
+
+	public List<Node> findPath(int startXPos, int startYPos, int goalXPos, int goalYPos) {
+		List<Node> queuedDirections = new LinkedList<>();
 		List<Node> openNodes = new LinkedList<Node>();
 		List<Node> closedNodes = new LinkedList<Node>();
 		Node startNode, goalNode;
@@ -106,16 +105,8 @@ public class Path implements Renderer {
 		return n;
 	}
 
-	private void queueDirection(List< Direction> queuedDirections, Node node) {
-		if (node.getNeighborX() == 1) {
-			queuedDirections.add(Direction.RIGHT);
-		} else if (node.getNeighborX() == -1) {
-			queuedDirections.add(Direction.LEFT);
-		} else if (node.getNeighborY() == -1) {
-			queuedDirections.add(Direction.UP);
-		} else if (node.getNeighborY() == 1) {
-			queuedDirections.add(Direction.DOWN);
-		}
+	private void queueDirection(List< Node> queuedDirections, Node node) {
+		queuedDirections.add(node);
 	}
 	
 	private List<Node> getAdjacentBlocks(Node current) {
@@ -135,14 +126,13 @@ public class Path implements Renderer {
 	private void addAdjacentBlock(Node current, List<Node> bs, Vector2 vector) {
 		if (nodes.containsKey(vector)) {
 			bs.add(nodes.get(vector));
+		}else if (current.isAdjacentRightFloor()) {
+			vector.set(0, current.getyPos());
+			bs.add(nodes.get(vector));
+		} else if (current.isAdjacentLeftFloor()) {
+			vector.set((Display.WIDTH-current.getWidth()), current.getyPos());
+			bs.add(nodes.get(vector));
 		}
-//		else if (current.isAdjacentRightFloor()) {
-//			vector.set(0, current.getyPos());
-//			bs.add(nodes.get(vector));
-//		} else if (current.isAdjacentLeftFloor()) {
-//			vector.set((Display.WIDTH-current.getWidth()), current.getyPos());
-//			bs.add(nodes.get(vector));
-//		}
 	}
 	
 	private int getDX(Node current, Node neighbor) {
@@ -155,20 +145,19 @@ public class Path implements Renderer {
 		int rightMirrorTarget = targetXRightMirror-currentX;
 		int leftMirrorTarget = targetXLeftMirror-currentX;
 		   
-		return normalTarget;
-//		if (Math.abs(normalTarget) <= Math.abs(rightMirrorTarget) && Math.abs(normalTarget) <= Math.abs(leftMirrorTarget)) {
-//			return normalTarget;
-//		} else if (Math.abs(leftMirrorTarget) <= Math.abs(rightMirrorTarget)) {
-//			if (leftMirrorTarget == 1) {
-//				throw new RuntimeException("left wrong direction");
-//			}
-//			return leftMirrorTarget;
-//		} else {  
-//			if (rightMirrorTarget == -1) {
-//				throw new RuntimeException("rightwrong direction");
-//			}
-//			return rightMirrorTarget;
-//		}
+		if (Math.abs(normalTarget) <= Math.abs(rightMirrorTarget) && Math.abs(normalTarget) <= Math.abs(leftMirrorTarget)) {
+			return normalTarget;
+		} else if (Math.abs(leftMirrorTarget) <= Math.abs(rightMirrorTarget)) {
+			if (leftMirrorTarget == 1) {
+				throw new RuntimeException("left wrong direction");
+			}
+			return leftMirrorTarget;
+		} else {
+			if (rightMirrorTarget == -1) {
+				throw new RuntimeException("rightwrong direction");
+			}
+			return rightMirrorTarget;
+		}
 	}
 	
 	private int getDY(Node current, Node neighbor) {

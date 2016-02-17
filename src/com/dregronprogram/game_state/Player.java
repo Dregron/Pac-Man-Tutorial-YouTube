@@ -32,9 +32,9 @@ public class Player implements Renderer, KeyListener {
 	private Direction currentDirection, queuedDirection;
 	private int speed;
 	
-	private Map<Vector2, Block> blocks = new HashMap<Vector2, Block>();
-	private Map<Vector2, Food> foods = new HashMap<Vector2, Food>();
-	private Map<Vector2, PowerUp> powerUps = new HashMap<Vector2, PowerUp>();
+	private Map<Vector2, Block> blocks = new HashMap<>();
+	private Map<Vector2, Food> foods = new HashMap<>();
+	private Map<Vector2, PowerUp> powerUps = new HashMap<>();
 	
 	private Font scoreFont = new Font("Arial", Font.ITALIC, 18);
 	private int SCORE = 0;
@@ -179,14 +179,6 @@ public class Player implements Renderer, KeyListener {
 		return blocks;
 	}
 	
-	public Map<Vector2, PowerUp> getPowerUps() {
-		return powerUps;
-	}
-	
-	public Map<Vector2, Food> getFoods() {
-		return foods;
-	}
-	
 	public void setPowerUps(Map<Vector2, PowerUp> powerUps) {
 		this.powerUps = powerUps;
 	}
@@ -196,7 +188,7 @@ public class Player implements Renderer, KeyListener {
 	}
 	
 	private List<Food> getAdjacentFoods() {
-		List<Food> bs = new ArrayList<Food>();
+		List<Food> bs = new ArrayList<>();
 		Vector2 vector = new Vector2(30, 28);
 		vector.set(getRectangle().x+getRectangle().width, getRectangle().y);
 		addAdjacentFood(bs, vector);
@@ -210,7 +202,7 @@ public class Player implements Renderer, KeyListener {
 	}
 	
 	private List<PowerUp> getAdjacentPowerUp() {
-		List<PowerUp> bs = new ArrayList<PowerUp>();
+		List<PowerUp> bs = new ArrayList<>();
 		Vector2 vector = new Vector2(30, 28);
 		vector.set(getRectangle().x+getRectangle().width, getRectangle().y);
 		addAdjacentPowerUp(bs, vector);
@@ -238,7 +230,7 @@ public class Player implements Renderer, KeyListener {
 	}
 	
 	private List<Block> getAdjacentBlocks() {
-		List<Block> bs = new ArrayList<Block>();
+		List<Block> bs = new ArrayList<>();
 		Vector2 vector = new Vector2(30, 28);
 		vector.set(getRectangle().x+getRectangle().width, getRectangle().y);
 		addAdjacentBlock(bs, vector);
