@@ -24,7 +24,7 @@ public class GameState extends State implements KeyListener {
 	private LevelHandler levelHandler;
 	private Player player;
 	private boolean beginLevel;
-	public final static boolean debugMode = false;
+	public final static boolean debugMode = true;
 	
 	public GameState(StateMachine stateMachine) {
 		super(stateMachine);

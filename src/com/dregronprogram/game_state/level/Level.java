@@ -6,14 +6,12 @@ import com.dregronprogram.game_state.ghost.Ghost;
 import com.dregronprogram.tiled_map.Tiled;
 import com.dregronprogram.tiled_map.TiledMap;
 import com.dregronprogram.tiled_map.Tileset;
+import com.dregronprogram.utils.SpriteAnimation;
 import com.dregronprogram.utils.Vector2;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public abstract class Level {
 
@@ -120,11 +118,21 @@ public abstract class Level {
 	protected void initGhostLayer(int dataNum, Tileset tileset, int xPos, int yPos) {
 		Map<String, String> property = tileset.getTileproperties().get(dataNum-1);
 		if (property != null && property.containsKey("Ghost")) {
+
 			Ghost ghost = new Ghost(xPos, yPos
 					, getTiles().getTilewidth()
 					, getTiles().getTileheight()
-					, spriteSheet.get(Integer.valueOf(property.get("Ghost")))
 					, nodes);
+			int speed = 12;
+			ghost.setLeftAnimation(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(30), getSpriteSheet().get(31), getSpriteSheet().get(32))));
+			ghost.setRightAnimation(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(33), getSpriteSheet().get(34), getSpriteSheet().get(35))));
+			ghost.setDownAnimation(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(42), getSpriteSheet().get(43), getSpriteSheet().get(44))));
+			ghost.setUpAnimation(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(45), getSpriteSheet().get(46), getSpriteSheet().get(47))));
+			ghost.getLeftAnimation().setLoop(true);
+			ghost.getRightAnimation().setLoop(true);
+			ghost.getDownAnimation().setLoop(true);
+			ghost.getUpAnimation().setLoop(true);
+
 			ghosts.add(ghost);
 		}
 	}
@@ -144,5 +152,9 @@ public abstract class Level {
 
 	private boolean doesContainValue(Map<String, String> property, String value) {
 		return property != null && property.containsValue(value);
+	}
+
+	public Map<Integer, BufferedImage> getSpriteSheet() {
+		return spriteSheet;
 	}
 }

@@ -127,19 +127,27 @@
                 },
              "30":
                 {
-                 "Ghost":"30"
+                 "Ghost":"left"
                 },
              "31":
                 {
-                 "Ghost":"30"
+                 "Ghost":"left"
                 },
              "32":
                 {
-                 "Ghost":"30"
+                 "Ghost":"left"
                 },
              "33":
                 {
-                 "Ghost":"4"
+                 "Ghost":"right"
+                },
+             "34":
+                {
+                 "Ghost":"right"
+                },
+             "35":
+                {
+                 "Ghost":"right"
                 },
              "36":
                 {
@@ -156,6 +164,30 @@
              "4":
                 {
                  "Eat":"food"
+                },
+             "42":
+                {
+                 "Ghost":"down"
+                },
+             "43":
+                {
+                 "Ghost":"down"
+                },
+             "44":
+                {
+                 "Ghost":"down"
+                },
+             "45":
+                {
+                 "Ghost":"up"
+                },
+             "46":
+                {
+                 "Ghost":"up"
+                },
+             "47":
+                {
+                 "Ghost":"up"
                 },
              "5":
                 {
