@@ -2,8 +2,6 @@ package com.dregronprogram.game_state.a_star;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.LinkedList;
-import java.util.List;
 
 import com.dregronprogram.application.Renderer;
 import com.dregronprogram.game_state.GameState;
@@ -12,8 +10,6 @@ public class Node implements Renderer {
 	
 	private String name;
 	private int xPos, yPos, width, height;
-	private List<Node> adjacentNode = new LinkedList<Node>();
-	private int neighborX, neighborY;
 	private Color colour;
 	private int g_score = Integer.MAX_VALUE, f_score = Integer.MAX_VALUE;
 	private boolean adjacentLeftFloor, adjacentRightFloor;
@@ -44,50 +40,18 @@ public class Node implements Renderer {
 		return height;
 	}
 	
-	public void setxPos(int xPos) {
-		this.xPos = xPos;
-	}
-	
 	public int getxPos() {
 		return xPos;
 	}
-	
-	public void setyPos(int yPos) {
-		this.yPos = yPos;
-	}
-	
+
 	public int getyPos() {
 		return yPos;
 	}
 	
-	public void setAdjacentNode(List<Node> adjacentNode) {
-		this.adjacentNode = adjacentNode;
-	}
-	
-	public List<Node> getAdjacentNode() {
-		return adjacentNode;
-	}
-	
-	public void setNeighborX(int neighborX) {
-		this.neighborX = neighborX;
-	}
-	
-	public int getNeighborX() {
-		return neighborX;
-	}
-	
-	public void setNeighborY(int neighborY) {
-		this.neighborY = neighborY;
-	}
-	
-	public int getNeighborY() {
-		return neighborY;
-	}
-
 	public void clearColour() {
 		colour = null;
 	}
-	
+
 	public String getName() {
 		return name;
 	}

@@ -44,7 +44,7 @@ public class Path implements Renderer {
 	}
 
 	public List<Node> findPath(int startXPos, int startYPos, int goalXPos, int goalYPos) {
-		Map<Node, Node> cameFrom = new LinkedHashMap<Node, Node>();
+		Map<Node, Node> cameFrom = new LinkedHashMap<>();
 		List<Node> openNodes = new LinkedList<>();
 		List<Node> closedNodes = new LinkedList<>();
 		Node startNode, goalNode;
@@ -85,15 +85,13 @@ public class Path implements Renderer {
 				cameFrom.put(neighbor, current);
 				neighbor.setG_score(tentative_g_score);
 				neighbor.setF_score(neighbor.getG_score() + getDistanceBetween(neighbor, goalNode));
-				neighbor.setNeighborX(getDX(current, neighbor));
-				neighbor.setNeighborY(getDY(current, neighbor));
 			}
 		}
-		return new LinkedList<Node>();
+		return new LinkedList<>();
 	}
 	
 	private List<Node> reconstructPath(Map<Node, Node> cameFrom, Node current) {
-		List<Node> totalPath = new LinkedList<Node>();
+		List<Node> totalPath = new LinkedList<>();
 		totalPath.add(current);
 		current.setColour(Color.red);
 		while (cameFrom.containsKey(current)) {
@@ -131,8 +129,7 @@ public class Path implements Renderer {
 	}
 	
 	public boolean isAdjacentBlock(Node currentNode, Node prevNode) {
-		if (currentNode.equals(prevNode)) return true;
-		return getAdjacentBlocks(currentNode).contains(prevNode);
+		return currentNode.equals(prevNode) || getAdjacentBlocks(currentNode).contains(prevNode);
 	}
 	
 	private void addAdjacentBlock(Node current, List<Node> bs, Vector2 vector) {
@@ -147,16 +144,16 @@ public class Path implements Renderer {
 		}
 	}
 	
-	private int getDX(Node current, Node neighbor) {
+	public int getDX(Node current, Node neighbor) {
 		int targetX = neighbor.getxPos() / neighbor.getWidth();
 		int currentX = current.getxPos() / current.getWidth();
 		int targetXRightMirror = (Display.WIDTH / neighbor.getWidth())+targetX;
 		int targetXLeftMirror = -(Display.WIDTH/neighbor.getWidth())+targetX;
-			
+
 		int normalTarget = targetX-currentX;
 		int rightMirrorTarget = targetXRightMirror-currentX;
 		int leftMirrorTarget = targetXLeftMirror-currentX;
-		   
+
 		if (Math.abs(normalTarget) <= Math.abs(rightMirrorTarget) && Math.abs(normalTarget) <= Math.abs(leftMirrorTarget)) {
 			return normalTarget;
 		} else if (Math.abs(leftMirrorTarget) <= Math.abs(rightMirrorTarget)) {
@@ -165,14 +162,14 @@ public class Path implements Renderer {
 			return rightMirrorTarget;
 		}
 	}
-	
-	private int getDY(Node current, Node neighbor) {
+
+	public int getDY(Node current, Node neighbor) {
 		int targetY = neighbor.getyPos() /  neighbor.getHeight();
 		int currentY = current.getyPos() / current.getHeight();
 
 		return targetY-currentY;
 	}
-	
+
 	private int getDistanceBetween(Node current, Node neighbor) {
 		return Math.abs(getDX(current, neighbor)) + Math.abs(getDY(current, neighbor));
 	}

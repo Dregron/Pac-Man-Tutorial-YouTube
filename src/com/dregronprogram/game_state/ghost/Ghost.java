@@ -51,32 +51,30 @@ public class Ghost implements Renderer {
 						setXPos(Display.WIDTH + getRectangle().width);
 					}
 
-					float xSpeed = 32;//(float) (2 * delta);
-					float ySpeed = 30;//(float) (2 * delta);
-					if (prevTarget.isAdjacentLeftFloor()) {
-						setXPos(getXPos() - xSpeed);
-					} else if (prevTarget.isAdjacentRightFloor()) {
+					float xSpeed = (float) (2 * delta);
+					float ySpeed = (float) (2 * delta);
+					if (path.getDX(currentTarget, prevTarget) == -1) {
 						setXPos(getXPos() + xSpeed);
-					} else {
-						setXPos(MathUtils.lerp(currentTarget.getxPos(), getXPos(), xSpeed));
+					} else if (path.getDX(currentTarget, prevTarget) == 1) {
+						setXPos(getXPos() - xSpeed);
 					}
-					
-					setYPos(MathUtils.lerp(currentTarget.getyPos(), getYPos(), ySpeed));
+
+					if (path.getDY(currentTarget, prevTarget) == -1) {
+						setYPos(getYPos() + ySpeed);
+					} else if (path.getDY(currentTarget, prevTarget) == 1) {
+						setYPos(getYPos() - ySpeed);
+					}
 				}
 
 				if (MathUtils.isEqual(currentTarget.getxPos(), getRectangle().x, 1) && MathUtils.isEqual(currentTarget.getyPos(), getRectangle().y, 1) && !nodes.isEmpty()) {
 					setXPos(currentTarget.getxPos());
 					setYPos(currentTarget.getyPos());
-					if (prevTarget == null || 
-							(!(prevTarget.isAdjacentLeftFloor() && currentTarget.isAdjacentRightFloor()) &&
-							!(prevTarget.isAdjacentRightFloor() && currentTarget.isAdjacentLeftFloor())) ) {
-						prevTarget = currentTarget;
-					}
+					prevTarget = currentTarget;
 					currentTarget = nodes.get(nodes.size() - 1);
 					if (!path.isAdjacentBlock(currentTarget, prevTarget)) {
 						throw new IllegalStateException("current node not adjacent from prev target \n"
-														+ "prev xPos: " + prevTarget.getxPos()  + " prev yPos: " + prevTarget.getyPos() + " \n"
-														+ "curr xPos: " + currentTarget.getxPos() + " curr yPos: " + currentTarget.getyPos());
+								+ "prev xPos: " + prevTarget.getxPos()  + " prev yPos: " + prevTarget.getyPos() + " \n"
+								+ "curr xPos: " + currentTarget.getxPos() + " curr yPos: " + currentTarget.getyPos());
 					}
 					nodes.remove(currentTarget);
 				}
@@ -94,15 +92,15 @@ public class Ghost implements Renderer {
 
 		g.setColor(Color.RED);
 		if (currentTarget != null) {
-			if (currentTarget.getNeighborX() == 1) {
+			if (path.getDX(currentTarget, prevTarget) == -1) {
 				rightAnimation.draw(g, getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height);
-			} else if (currentTarget.getNeighborX() == -1) {
+			} else if (path.getDX(currentTarget, prevTarget) == 1) {
 				leftAnimation.draw(g, getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height);
 			}
 
-			if (currentTarget.getNeighborY() == -1) {
+			if (path.getDY(currentTarget, prevTarget) == 1) {
 				upAnimation.draw(g, getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height);
-			} else if (currentTarget.getNeighborY() == 1) {
+			} else if (path.getDY(currentTarget, prevTarget) == -1) {
 				downAnimation.draw(g, getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height);
 			}
 		}
