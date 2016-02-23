@@ -2,11 +2,16 @@ package com.dregronprogram.game_state.a_star;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import com.dregronprogram.application.Renderer;
 import com.dregronprogram.display.Display;
-import com.dregronprogram.game_state.Direction;
 import com.dregronprogram.utils.MathUtils;
 import com.dregronprogram.utils.Vector2;
 
@@ -39,7 +44,7 @@ public class Path implements Renderer {
 	}
 
 	public List<Node> findPath(int startXPos, int startYPos, int goalXPos, int goalYPos) {
-		List<Node> queuedDirections = new LinkedList<>();
+		Map<Node, Node> cameFrom = new LinkedHashMap<Node, Node>();
 		List<Node> openNodes = new LinkedList<>();
 		List<Node> closedNodes = new LinkedList<>();
 		Node startNode, goalNode;
@@ -51,7 +56,6 @@ public class Path implements Renderer {
 		
 		for (Node node : getNodes().values()) {
 			node.clearColour();
-			node.clear();
 		}
 		
 		while(!openNodes.isEmpty()) {
@@ -60,12 +64,8 @@ public class Path implements Renderer {
 			closedNodes.add(current);
 			openNodes.remove(current);
 
-			if (MathUtils.isEqual(current.getxPos(), goalXPos, 0) && MathUtils.isEqual(current.getyPos(), goalYPos, 0)) {
-				queueDirection(queuedDirections, current);
-				for (Node node : current.getPrevNodesNode()) {
-					queueDirection(queuedDirections, node);
-				}
-				break;
+			if (MathUtils.isEqual(current.getxPos(), goalNode.getxPos(), 0) && MathUtils.isEqual(current.getyPos(), goalNode.getyPos(), 0)) {
+				return reconstructPath(cameFrom, goalNode);
 			}
 			
 			current.setColour(Color.CYAN);
@@ -82,17 +82,28 @@ public class Path implements Renderer {
 					continue;
 				}
 				
+				cameFrom.put(neighbor, current);
 				neighbor.setG_score(tentative_g_score);
 				neighbor.setF_score(neighbor.getG_score() + getDistanceBetween(neighbor, goalNode));
 				neighbor.setNeighborX(getDX(current, neighbor));
 				neighbor.setNeighborY(getDY(current, neighbor));
-				neighbor.getPrevNodesNode().add(current);
-				neighbor.getPrevNodesNode().addAll(current.getPrevNodesNode());
 			}
 		}
-		return queuedDirections;
+		return new LinkedList<Node>();
 	}
 	
+	private List<Node> reconstructPath(Map<Node, Node> cameFrom, Node current) {
+		List<Node> totalPath = new LinkedList<Node>();
+		totalPath.add(current);
+		current.setColour(Color.red);
+		while (cameFrom.containsKey(current)) {
+			current = cameFrom.get(current);
+			current.setColour(Color.red);
+			totalPath.add(current);
+		}
+		return totalPath;
+	}
+
 	private Node getNodeWithLowestFScore(List<Node> openNodes) {
 		int f_score = Integer.MAX_VALUE;
 		Node n = null;
@@ -105,10 +116,6 @@ public class Path implements Renderer {
 		return n;
 	}
 
-	private void queueDirection(List< Node> queuedDirections, Node node) {
-		queuedDirections.add(node);
-	}
-	
 	private List<Node> getAdjacentBlocks(Node current) {
 		List<Node> bs = new ArrayList<>();
 		Vector2 vector = new Vector2(0, 0);
@@ -121,6 +128,11 @@ public class Path implements Renderer {
 		vector.set(current.getxPos(), current.getyPos()-current.getHeight());
 		addAdjacentBlock(current, bs, vector);
 		return bs;
+	}
+	
+	public boolean isAdjacentBlock(Node currentNode, Node prevNode) {
+		if (currentNode.equals(prevNode)) return true;
+		return getAdjacentBlocks(currentNode).contains(prevNode);
 	}
 	
 	private void addAdjacentBlock(Node current, List<Node> bs, Vector2 vector) {

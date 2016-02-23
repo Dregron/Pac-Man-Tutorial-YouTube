@@ -1,7 +1,8 @@
 package com.dregronprogram.game_state.ghost;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ public class Ghost implements Renderer {
 	private SpriteAnimation leftAnimation, rightAnimation, downAnimation, upAnimation;
 	private Path path;
 	private List<Node> nodes = new LinkedList<>();
-	private Node currentTarget;
+	private Node currentTarget, prevTarget;
 	private GhostState currentState;
 
 	public Ghost(int xPos, int yPos, int width, int height, Map<Vector2, Node> nodes) {
@@ -50,16 +51,33 @@ public class Ghost implements Renderer {
 						setXPos(Display.WIDTH + getRectangle().width);
 					}
 
-					setXPos(MathUtils.lerp(currentTarget.getxPos(), getXPos(), (float) (2 * delta) ));
-					setYPos(MathUtils.lerp(currentTarget.getyPos(), getYPos(), (float) (2 * delta)));
+					float xSpeed = 32;//(float) (2 * delta);
+					float ySpeed = 30;//(float) (2 * delta);
+					if (prevTarget.isAdjacentLeftFloor()) {
+						setXPos(getXPos() - xSpeed);
+					} else if (prevTarget.isAdjacentRightFloor()) {
+						setXPos(getXPos() + xSpeed);
+					} else {
+						setXPos(MathUtils.lerp(currentTarget.getxPos(), getXPos(), xSpeed));
+					}
+					
+					setYPos(MathUtils.lerp(currentTarget.getyPos(), getYPos(), ySpeed));
 				}
 
 				if (MathUtils.isEqual(currentTarget.getxPos(), getRectangle().x, 1) && MathUtils.isEqual(currentTarget.getyPos(), getRectangle().y, 1) && !nodes.isEmpty()) {
 					setXPos(currentTarget.getxPos());
 					setYPos(currentTarget.getyPos());
+					if (prevTarget == null || 
+							(!(prevTarget.isAdjacentLeftFloor() && currentTarget.isAdjacentRightFloor()) &&
+							!(prevTarget.isAdjacentRightFloor() && currentTarget.isAdjacentLeftFloor())) ) {
+						prevTarget = currentTarget;
+					}
 					currentTarget = nodes.get(nodes.size() - 1);
-					System.err.println("Current Target X: " + currentTarget.getxPos() + ", Current Target Y: " + currentTarget.getyPos());
-					System.err.println("X Position: " + getXPos() + ", Y Position: " + getYPos());
+					if (!path.isAdjacentBlock(currentTarget, prevTarget)) {
+						throw new IllegalStateException("current node not adjacent from prev target \n"
+														+ "prev xPos: " + prevTarget.getxPos()  + " prev yPos: " + prevTarget.getyPos() + " \n"
+														+ "curr xPos: " + currentTarget.getxPos() + " curr yPos: " + currentTarget.getyPos());
+					}
 					nodes.remove(currentTarget);
 				}
 				break;

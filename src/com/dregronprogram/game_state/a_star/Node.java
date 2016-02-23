@@ -13,7 +13,6 @@ public class Node implements Renderer {
 	private String name;
 	private int xPos, yPos, width, height;
 	private List<Node> adjacentNode = new LinkedList<Node>();
-	private List<Node> node = new LinkedList<Node>();
 	private int neighborX, neighborY;
 	private Color colour;
 	private int g_score = Integer.MAX_VALUE, f_score = Integer.MAX_VALUE;
@@ -69,10 +68,6 @@ public class Node implements Renderer {
 		return adjacentNode;
 	}
 	
-	public List<Node> getPrevNodesNode() {
-		return node;
-	}
-	
 	public void setNeighborX(int neighborX) {
 		this.neighborX = neighborX;
 	}
@@ -89,10 +84,6 @@ public class Node implements Renderer {
 		return neighborY;
 	}
 
-	public void clear() {
-		node.clear();
-	}
-	
 	public void clearColour() {
 		colour = null;
 	}
