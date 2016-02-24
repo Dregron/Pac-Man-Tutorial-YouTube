@@ -36,7 +36,7 @@ public class Path implements Renderer {
 	public Map<Vector2, Node> getNodes() {
 		return nodes;
 	}
-
+	
 	public List<Node> findRandomPath(int startXPos, int startYPos) {
 		Node[] nodeArray = new Node[getNodes().size()];
 		Node node = getNodes().values().toArray(nodeArray)[new Random().nextInt(getNodes().size()-1)];

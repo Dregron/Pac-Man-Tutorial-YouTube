@@ -32,12 +32,15 @@ public abstract class Level {
 
 	public abstract void update(double delta);
 	public void draw(Graphics2D g) {
-		getPlayer().draw(g);
+		
 		if (GameState.debugMode) {
 			for (Node node : getNodes().values()) {
 				node.draw(g);
 			}
 		}
+		
+		getPlayer().draw(g);
+		
 		for (Food food : getFoods().values()) {
 			food.draw(g);
 		}

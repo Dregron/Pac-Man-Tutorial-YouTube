@@ -3,12 +3,14 @@ package com.dregronprogram.game_state.ghost;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.geom.Ellipse2D;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import com.dregronprogram.application.Renderer;
 import com.dregronprogram.display.Display;
+import com.dregronprogram.game_state.GameState;
 import com.dregronprogram.game_state.Player;
 import com.dregronprogram.game_state.a_star.Node;
 import com.dregronprogram.game_state.a_star.Path;
@@ -26,6 +28,8 @@ public class Ghost implements Renderer {
 	private Node currentTarget, prevTarget;
 	private GhostState currentState;
 	private Player player;
+	
+	private Ellipse2D ellipse;
 
 	public Ghost(int xPos, int yPos, int width, int height, Map<Vector2, Node> nodes, Player player) {
 		this.xPos = xPos;
@@ -33,13 +37,28 @@ public class Ghost implements Renderer {
 		this.rectangle = new Rectangle(xPos, yPos, width, height);
 		this.path = new Path(nodes);
 		this.player = player;
-		this.currentState = GhostState.TARGET_PLAYER;
+		this.currentState = GhostState.BEGIN;
+		this.ellipse = new Ellipse2D.Double(xPos, yPos, width*8, height*8);
 	}
 
 	@Override
 	public void update(double delta) {
 
 		switch (currentState) {
+			case BEGIN:
+				if (nodes.isEmpty()) {
+					this.nodes.addAll(path.findPath(getRectangle().x, getRectangle().y, 5*getRectangle().width, 9*getRectangle().height));
+					this.currentTarget = this.nodes.get(nodes.size() - 1);
+				} else {
+					movement(delta);
+				}
+				
+				updateToNextTarget();
+				
+				if (nodes.isEmpty()) {
+					setCurrentState(GhostState.SEARCH);
+				}
+			break;
 			case IDLE:
 
 				break;
@@ -51,6 +70,7 @@ public class Ghost implements Renderer {
 					movement(delta);
 				}
 
+				switchState();
 				updateToNextTarget();
 				break;
 			case TARGET_PLAYER:
@@ -63,10 +83,12 @@ public class Ghost implements Renderer {
 					movement(delta);
 				}
 
+				switchState();
 				updateToNextTarget();
 				break;
 		}
 
+		
 		leftAnimation.update(delta);
 		rightAnimation.update(delta);
 		upAnimation.update(delta);
@@ -86,6 +108,18 @@ public class Ghost implements Renderer {
             }
             nodes.remove(currentTarget);
         }
+		
+	}
+
+	private void switchState() {
+		if (!getCurrentState().equals(GhostState.TARGET_PLAYER) && getEllipse().intersects(getPlayer().getRectangle())) {
+			setCurrentState(GhostState.TARGET_PLAYER);
+			nodes.clear();
+			nodes.add(0, prevTarget);
+			nodes.add(1, currentTarget);
+		} else if (!getCurrentState().equals(GhostState.SEARCH) && !getEllipse().intersects(getPlayer().getRectangle())) {
+			setCurrentState(GhostState.SEARCH);
+		}
 	}
 
 	private void movement(double delta) {
@@ -113,6 +147,13 @@ public class Ghost implements Renderer {
 	@Override
 	public void draw(Graphics2D g) {
 
+		if (GameState.debugMode) {
+			g.drawOval( (int) getEllipse().getX(),
+						(int) getEllipse().getY(),
+						(int) getEllipse().getWidth(),
+						(int) getEllipse().getHeight());
+		}
+		
 		g.setColor(Color.RED);
 		if (currentTarget != null && prevTarget != null) {
 			if (path.getDX(currentTarget, prevTarget) == -1) {
@@ -126,9 +167,12 @@ public class Ghost implements Renderer {
 			} else if (path.getDY(currentTarget, prevTarget) == -1) {
 				downAnimation.draw(g, getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height);
 			}
-		} else {
-			leftAnimation.draw(g, getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height);
-		}
+			
+			if (path.getDX(currentTarget, prevTarget) == 0 && path.getDY(currentTarget, prevTarget) == 0) {
+				leftAnimation.draw(g, getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height);
+			}
+		} 
+		
 		g.setPaintMode();
 	}
 
@@ -147,11 +191,19 @@ public class Ghost implements Renderer {
 	public void setXPos(float xPos) {
 		this.xPos = xPos;
 		this.getRectangle().x = (int) xPos;
+		this.getEllipse().setFrame(xPos-(getEllipse().getWidth()/2)+(getRectangle().width/2), 
+									getEllipse().getY(), 
+									getEllipse().getWidth(), 
+									getEllipse().getHeight());
 	}
 
 	public void setYPos(float yPos) {
 		this.yPos = yPos;
 		this.getRectangle().y = (int) yPos;
+		this.getEllipse().setFrame(getEllipse().getX(), 
+									yPos-(getEllipse().getHeight()/2)+(getRectangle().height/2), 
+									getEllipse().getWidth(),
+									getEllipse().getHeight());
 	}
 
 	public Rectangle getRectangle() {
@@ -192,5 +244,17 @@ public class Ghost implements Renderer {
 
 	public Player getPlayer() {
 		return player;
+	}
+	
+	public Ellipse2D getEllipse() {
+		return ellipse;
+	}
+	
+	public GhostState getCurrentState() {
+		return currentState;
+	}
+	
+	public void setCurrentState(GhostState currentState) {
+		this.currentState = currentState;
 	}
 }
