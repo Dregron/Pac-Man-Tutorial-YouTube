@@ -122,7 +122,7 @@ public abstract class Level {
 			Ghost ghost = new Ghost(xPos, yPos
 					, getTiles().getTilewidth()
 					, getTiles().getTileheight()
-					, nodes);
+					, nodes, getPlayer());
 			int speed = 12;
 			ghost.setLeftAnimation(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(30), getSpriteSheet().get(31), getSpriteSheet().get(32))));
 			ghost.setRightAnimation(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(33), getSpriteSheet().get(34), getSpriteSheet().get(35))));

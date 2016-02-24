@@ -9,6 +9,7 @@ import java.util.Map;
 
 import com.dregronprogram.application.Renderer;
 import com.dregronprogram.display.Display;
+import com.dregronprogram.game_state.Player;
 import com.dregronprogram.game_state.a_star.Node;
 import com.dregronprogram.game_state.a_star.Path;
 import com.dregronprogram.utils.MathUtils;
@@ -24,13 +25,15 @@ public class Ghost implements Renderer {
 	private List<Node> nodes = new LinkedList<>();
 	private Node currentTarget, prevTarget;
 	private GhostState currentState;
+	private Player player;
 
-	public Ghost(int xPos, int yPos, int width, int height, Map<Vector2, Node> nodes) {
+	public Ghost(int xPos, int yPos, int width, int height, Map<Vector2, Node> nodes, Player player) {
 		this.xPos = xPos;
 		this.yPos = yPos;
 		this.rectangle = new Rectangle(xPos, yPos, width, height);
 		this.path = new Path(nodes);
-		this.currentState = GhostState.RANDOM;
+		this.player = player;
+		this.currentState = GhostState.TARGET_PLAYER;
 	}
 
 	@Override
@@ -40,44 +43,27 @@ public class Ghost implements Renderer {
 			case IDLE:
 
 				break;
-			case RANDOM:
+			case SEARCH:
 				if (nodes.isEmpty()) {
 					nodes.addAll(path.findRandomPath((int) getXPos(), (int) getYPos()));
 					currentTarget = nodes.get(nodes.size() - 1);
 				} else {
-					if (getXPos() >= Display.WIDTH + getRectangle().width) {
-						setXPos(-getRectangle().width);
-					} else if (getXPos() <= -getRectangle().width) {
-						setXPos(Display.WIDTH + getRectangle().width);
-					}
-
-					float xSpeed = (float) (2 * delta);
-					float ySpeed = (float) (2 * delta);
-					if (path.getDX(currentTarget, prevTarget) == -1) {
-						setXPos(getXPos() + xSpeed);
-					} else if (path.getDX(currentTarget, prevTarget) == 1) {
-						setXPos(getXPos() - xSpeed);
-					}
-
-					if (path.getDY(currentTarget, prevTarget) == -1) {
-						setYPos(getYPos() + ySpeed);
-					} else if (path.getDY(currentTarget, prevTarget) == 1) {
-						setYPos(getYPos() - ySpeed);
-					}
+					movement(delta);
 				}
 
-				if (MathUtils.isEqual(currentTarget.getxPos(), getRectangle().x, 1) && MathUtils.isEqual(currentTarget.getyPos(), getRectangle().y, 1) && !nodes.isEmpty()) {
-					setXPos(currentTarget.getxPos());
-					setYPos(currentTarget.getyPos());
-					prevTarget = currentTarget;
+				updateToNextTarget();
+				break;
+			case TARGET_PLAYER:
+				if (nodes.isEmpty()) {
+					int xPlayer = (getPlayer().getRectangle().x/getPlayer().getRectangle().width) * getPlayer().getRectangle().width;
+					int yPlayer = (getPlayer().getRectangle().y/getPlayer().getRectangle().height) * getPlayer().getRectangle().height;
+					nodes.addAll(path.findPath((int) getXPos(), (int) getYPos(), xPlayer, yPlayer));
 					currentTarget = nodes.get(nodes.size() - 1);
-					if (!path.isAdjacentBlock(currentTarget, prevTarget)) {
-						throw new IllegalStateException("current node not adjacent from prev target \n"
-								+ "prev xPos: " + prevTarget.getxPos()  + " prev yPos: " + prevTarget.getyPos() + " \n"
-								+ "curr xPos: " + currentTarget.getxPos() + " curr yPos: " + currentTarget.getyPos());
-					}
-					nodes.remove(currentTarget);
+				} else {
+					movement(delta);
 				}
+
+				updateToNextTarget();
 				break;
 		}
 
@@ -87,11 +73,48 @@ public class Ghost implements Renderer {
 		downAnimation.update(delta);
 	}
 
+	private void updateToNextTarget() {
+		if (MathUtils.isEqual(currentTarget.getxPos(), getRectangle().x, 1) && MathUtils.isEqual(currentTarget.getyPos(), getRectangle().y, 1) && !nodes.isEmpty()) {
+            setXPos(currentTarget.getxPos());
+            setYPos(currentTarget.getyPos());
+            prevTarget = currentTarget;
+            currentTarget = nodes.get(nodes.size() - 1);
+            if (!path.isAdjacentBlock(currentTarget, prevTarget)) {
+                throw new IllegalStateException("current node not adjacent from prev target \n"
+                        + "prev xPos: " + prevTarget.getxPos()  + " prev yPos: " + prevTarget.getyPos() + " \n"
+                        + "curr xPos: " + currentTarget.getxPos() + " curr yPos: " + currentTarget.getyPos());
+            }
+            nodes.remove(currentTarget);
+        }
+	}
+
+	private void movement(double delta) {
+		if (getXPos() >= Display.WIDTH + getRectangle().width) {
+            setXPos(-getRectangle().width);
+        } else if (getXPos() <= -getRectangle().width) {
+            setXPos(Display.WIDTH + getRectangle().width);
+        }
+
+		float xSpeed = (float) (2 * delta);
+		float ySpeed = (float) (2 * delta);
+		if (path.getDX(currentTarget, prevTarget) == -1) {
+            setXPos(getXPos() + xSpeed);
+        } else if (path.getDX(currentTarget, prevTarget) == 1) {
+            setXPos(getXPos() - xSpeed);
+        }
+
+		if (path.getDY(currentTarget, prevTarget) == -1) {
+            setYPos(getYPos() + ySpeed);
+        } else if (path.getDY(currentTarget, prevTarget) == 1) {
+            setYPos(getYPos() - ySpeed);
+        }
+	}
+
 	@Override
 	public void draw(Graphics2D g) {
 
 		g.setColor(Color.RED);
-		if (currentTarget != null) {
+		if (currentTarget != null && prevTarget != null) {
 			if (path.getDX(currentTarget, prevTarget) == -1) {
 				rightAnimation.draw(g, getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height);
 			} else if (path.getDX(currentTarget, prevTarget) == 1) {
@@ -103,6 +126,8 @@ public class Ghost implements Renderer {
 			} else if (path.getDY(currentTarget, prevTarget) == -1) {
 				downAnimation.draw(g, getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height);
 			}
+		} else {
+			leftAnimation.draw(g, getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height);
 		}
 		g.setPaintMode();
 	}
@@ -163,5 +188,9 @@ public class Ghost implements Renderer {
 
 	public SpriteAnimation getDownAnimation() {
 		return downAnimation;
+	}
+
+	public Player getPlayer() {
+		return player;
 	}
 }
