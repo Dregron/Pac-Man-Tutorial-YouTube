@@ -9,9 +9,10 @@ import com.dregronprogram.tiled_map.Tileset;
 import com.dregronprogram.utils.SpriteAnimation;
 import com.dregronprogram.utils.Vector2;
 
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
+import java.util.List;
 
 public abstract class Level {
 
@@ -120,24 +121,70 @@ public abstract class Level {
 
 	protected void initGhostLayer(int dataNum, Tileset tileset, int xPos, int yPos) {
 		Map<String, String> property = tileset.getTileproperties().get(dataNum-1);
-		if (property != null && property.containsKey("Ghost")) {
 
-			Ghost ghost = new Ghost(xPos, yPos
-					, getTiles().getTilewidth()
-					, getTiles().getTileheight()
-					, nodes, getPlayer());
-			int speed = 12;
-			ghost.setLeftAnimation(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(30), getSpriteSheet().get(31), getSpriteSheet().get(32))));
-			ghost.setRightAnimation(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(33), getSpriteSheet().get(34), getSpriteSheet().get(35))));
-			ghost.setDownAnimation(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(42), getSpriteSheet().get(43), getSpriteSheet().get(44))));
-			ghost.setUpAnimation(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(45), getSpriteSheet().get(46), getSpriteSheet().get(47))));
-			ghost.getLeftAnimation().setLoop(true);
-			ghost.getRightAnimation().setLoop(true);
-			ghost.getDownAnimation().setLoop(true);
-			ghost.getUpAnimation().setLoop(true);
+		Ghost ghost = new Ghost(xPos, yPos
+				, getTiles().getTilewidth()
+				, getTiles().getTileheight()
+				, nodes, getPlayer(), getGhosts().size() * 120);
+		int speed = 12;
 
+		if (property != null && property.containsKey("redGhost")) {
+
+			setSpriteSheet(ghost, new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(30), getSpriteSheet().get(31), getSpriteSheet().get(32))), new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(33), getSpriteSheet().get(34), getSpriteSheet().get(35))), new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(42), getSpriteSheet().get(43), getSpriteSheet().get(44))), new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(45), getSpriteSheet().get(46), getSpriteSheet().get(47))));
+			ghost.setScaredGhost(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(18), getSpriteSheet().get(19), getSpriteSheet().get(20))));
+			ghost.getScaredGhost().setLoop(true);
 			ghosts.add(ghost);
 		}
+
+		if (property != null && property.containsKey("blueGhost")) {
+
+			setSpriteSheet(ghost,
+					new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(54), getSpriteSheet().get(55), getSpriteSheet().get(56))),
+					new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(57), getSpriteSheet().get(58), getSpriteSheet().get(59))),
+					new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(66), getSpriteSheet().get(67), getSpriteSheet().get(68))),
+					new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(69), getSpriteSheet().get(70), getSpriteSheet().get(71))));
+			ghost.setScaredGhost(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(18), getSpriteSheet().get(19), getSpriteSheet().get(20))));
+			ghost.getScaredGhost().setLoop(true);
+			ghosts.add(ghost);
+		}
+
+		if (property != null && property.containsKey("yellowGhost")) {
+
+			setSpriteSheet(ghost,
+					  new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(78), getSpriteSheet().get(79), getSpriteSheet().get(80)))
+					, new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(81), getSpriteSheet().get(82), getSpriteSheet().get(83)))
+					, new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(90), getSpriteSheet().get(91), getSpriteSheet().get(92)))
+					, new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(93), getSpriteSheet().get(94), getSpriteSheet().get(95))));
+			ghost.setScaredGhost(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(18), getSpriteSheet().get(19), getSpriteSheet().get(20))));
+			ghost.getScaredGhost().setLoop(true);
+			ghosts.add(ghost);
+		}
+
+		if (property != null && property.containsKey("pinkGhost")) {
+
+			setSpriteSheet(ghost,
+					new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(102), getSpriteSheet().get(103), getSpriteSheet().get(104)))
+					, new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(105), getSpriteSheet().get(106), getSpriteSheet().get(107)))
+					, new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(114), getSpriteSheet().get(115), getSpriteSheet().get(116)))
+					, new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(117), getSpriteSheet().get(118), getSpriteSheet().get(119))));
+			ghost.setScaredGhost(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(18), getSpriteSheet().get(19), getSpriteSheet().get(20))));
+			ghost.getScaredGhost().setLoop(true);
+			ghosts.add(ghost);
+		}
+	}
+
+	private void setSpriteSheet(Ghost ghost, SpriteAnimation leftAnimation, SpriteAnimation rightAnimation, SpriteAnimation downAnimation, SpriteAnimation upAnimation) {
+		ghost.setLeftAnimation(leftAnimation);
+		ghost.setRightAnimation(rightAnimation);
+		ghost.setDownAnimation(downAnimation);
+		ghost.setUpAnimation(upAnimation);
+
+		ghost.getLeftAnimation().setLoop(true);
+		ghost.getRightAnimation().setLoop(true);
+		ghost.getDownAnimation().setLoop(true);
+		ghost.getUpAnimation().setLoop(true);
+
+
 	}
 
 	protected void initFloorLayer(int dataNum, Tileset tileset, int xPos, int yPos) {
