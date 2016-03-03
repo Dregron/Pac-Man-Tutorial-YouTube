@@ -372,4 +372,8 @@ public class Player implements Renderer, KeyListener {
 	public void setSuperPacMan(boolean superPacMan) {
 		this.superPacMan = superPacMan;
 	}
+
+	public int getHealth() {
+		return health;
+	}
 }

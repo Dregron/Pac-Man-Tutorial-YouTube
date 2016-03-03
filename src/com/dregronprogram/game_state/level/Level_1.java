@@ -4,6 +4,7 @@ import com.dregronprogram.game_state.Block;
 import com.dregronprogram.game_state.Player;
 import com.dregronprogram.game_state.PowerUp;
 import com.dregronprogram.game_state.ghost.Ghost;
+import com.dregronprogram.game_state.ghost.GhostState;
 import com.dregronprogram.tiled_map.Layer;
 import com.dregronprogram.tiled_map.TiledMap;
 import com.dregronprogram.tiled_map.Tileset;
@@ -14,26 +15,28 @@ import java.util.Map;
 
 public class Level_1 extends Level {
 
-	private Ghost resetGhost;
-	private boolean ready, pause;
+	private boolean ready;
 	private TickTimer spawn, pauseTimer;
 
 	public Level_1(Map<Integer, BufferedImage> spriteSheet, Player player) {
 		super(spriteSheet, player);
 		this.ready = false;
-		this.pause = false;
+		this.setPause(false);
 		this.pauseTimer = new TickTimer(60);
 	}
 	
 	@Override
 	public void update(double delta) {
-		if (pause) {
+		if (isPause()) {
 			pauseTimer.tick(delta);
 			if (pauseTimer.isEventReady()) {
 				setPause(false);
-				resetGhost = null;
 			} else {
-				resetGhost.update(delta);
+				for (Ghost ghost : getGhosts()) {
+					if (ghost.getCurrentState().equals(GhostState.DEAD)) {
+						ghost.update(delta);
+					}
+				}
 			}
 			return;
 		}
@@ -56,12 +59,12 @@ public class Level_1 extends Level {
 
 	@Override
 	public boolean isComplete() {
-		return false;
+		return getFoods().isEmpty() && getPowerUps().isEmpty();
 	}
 
 	@Override
 	public boolean isGameOver() {
-		return false;
+		return getPlayer().getHealth() <= 0;
 	}
 
 	@Override
@@ -98,13 +101,5 @@ public class Level_1 extends Level {
 	@Override
 	public boolean levelReady() {
 		return ready;
-	}
-	
-	public void setPause(boolean pause) {
-		this.pause = pause;
-	}
-	
-	public boolean isPause() {
-		return pause;
 	}
 }

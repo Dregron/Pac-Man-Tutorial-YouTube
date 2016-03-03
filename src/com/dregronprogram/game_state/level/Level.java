@@ -16,6 +16,7 @@ import java.util.List;
 
 public abstract class Level {
 
+	private boolean pause;
 	private TiledMap tiledmap;
 	private Player player;
 
@@ -122,7 +123,7 @@ public abstract class Level {
 	protected void initGhostLayer(int dataNum, Tileset tileset, int xPos, int yPos) {
 		Map<String, String> property = tileset.getTileproperties().get(dataNum-1);
 
-		Ghost ghost = new Ghost(xPos, yPos
+		Ghost ghost = new Ghost(this, xPos, yPos
 				, getTiles().getTilewidth()
 				, getTiles().getTileheight()
 				, nodes, getPlayer(), getGhosts().size() * 120);
@@ -133,6 +134,7 @@ public abstract class Level {
 			setSpriteSheet(ghost, new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(30), getSpriteSheet().get(31), getSpriteSheet().get(32))), new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(33), getSpriteSheet().get(34), getSpriteSheet().get(35))), new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(42), getSpriteSheet().get(43), getSpriteSheet().get(44))), new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(45), getSpriteSheet().get(46), getSpriteSheet().get(47))));
 			ghost.setScaredGhost(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(18), getSpriteSheet().get(19), getSpriteSheet().get(20))));
 			ghost.getScaredGhost().setLoop(true);
+			setDeadSprite(ghost);
 			ghosts.add(ghost);
 		}
 
@@ -145,6 +147,7 @@ public abstract class Level {
 					new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(69), getSpriteSheet().get(70), getSpriteSheet().get(71))));
 			ghost.setScaredGhost(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(18), getSpriteSheet().get(19), getSpriteSheet().get(20))));
 			ghost.getScaredGhost().setLoop(true);
+			setDeadSprite(ghost);
 			ghosts.add(ghost);
 		}
 
@@ -157,6 +160,7 @@ public abstract class Level {
 					, new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(93), getSpriteSheet().get(94), getSpriteSheet().get(95))));
 			ghost.setScaredGhost(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(18), getSpriteSheet().get(19), getSpriteSheet().get(20))));
 			ghost.getScaredGhost().setLoop(true);
+			setDeadSprite(ghost);
 			ghosts.add(ghost);
 		}
 
@@ -169,8 +173,16 @@ public abstract class Level {
 					, new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(117), getSpriteSheet().get(118), getSpriteSheet().get(119))));
 			ghost.setScaredGhost(new SpriteAnimation(xPos, yPos, speed, Arrays.asList(getSpriteSheet().get(18), getSpriteSheet().get(19), getSpriteSheet().get(20))));
 			ghost.getScaredGhost().setLoop(true);
+			setDeadSprite(ghost);
 			ghosts.add(ghost);
 		}
+	}
+
+	public void setDeadSprite(Ghost ghost) {
+		ghost.setLeftDeadGhost(getSpriteSheet().get(40));
+		ghost.setRightDeadGhost(getSpriteSheet().get(41));
+		ghost.setDownDeadGhost(getSpriteSheet().get(52));
+		ghost.setUpDeadGhost(getSpriteSheet().get(53));
 	}
 
 	private void setSpriteSheet(Ghost ghost, SpriteAnimation leftAnimation, SpriteAnimation rightAnimation, SpriteAnimation downAnimation, SpriteAnimation upAnimation) {
@@ -183,8 +195,6 @@ public abstract class Level {
 		ghost.getRightAnimation().setLoop(true);
 		ghost.getDownAnimation().setLoop(true);
 		ghost.getUpAnimation().setLoop(true);
-
-
 	}
 
 	protected void initFloorLayer(int dataNum, Tileset tileset, int xPos, int yPos) {
@@ -206,5 +216,17 @@ public abstract class Level {
 
 	public Map<Integer, BufferedImage> getSpriteSheet() {
 		return spriteSheet;
+	}
+
+	public void enemyHit() {
+		setPause(true);
+	}
+
+	protected void setPause(boolean pause) {
+		this.pause = pause;
+	}
+
+	protected boolean isPause() {
+		return pause;
 	}
 }

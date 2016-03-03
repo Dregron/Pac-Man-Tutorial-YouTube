@@ -5,6 +5,8 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 
 import com.dregronprogram.game_state.GameState;
+import com.dregronprogram.menu_state.MenuState;
+import com.dregronprogram.splash_state.SplashState;
 
 public class StateMachine {
 
@@ -14,7 +16,11 @@ public class StateMachine {
 	
 	public StateMachine(Canvas canvas){
 		GameState gameState = new GameState(this);
+		MenuState menuState = new MenuState(this);
+		SplashState splashState = new SplashState(this);
 		states.add(gameState);
+		states.add(menuState);
+		states.add(splashState);
 		
 		this.canvas = canvas;
 	}

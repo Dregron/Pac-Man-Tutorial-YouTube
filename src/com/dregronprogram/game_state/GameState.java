@@ -61,6 +61,11 @@ public class GameState extends State implements KeyListener {
 		if (getLevelHandler().levelReady()) {
 			
 			getLevelHandler().update(delta);
+			if (getLevelHandler().getCurrentLevel().isComplete()) {
+				System.err.println("Level Won!");
+			} else if (getLevelHandler().getCurrentLevel().isGameOver()) {
+				System.err.println("Game Over!");
+			}
 		} else if (isLevelBegining()) {
 							
 			setBeginLevel(false);

@@ -1,8 +1,6 @@
 package com.dregronprogram.display;
 
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferStrategy;
 
 import javax.swing.JFrame;
@@ -62,7 +60,7 @@ public class Display extends Canvas implements Runnable {
 		this.setFocusable(true);
 
 		state = new StateMachine(this);
-		state.setState((byte) 0); 
+		state.setState((byte) 1);
 	}
 
 	@Override

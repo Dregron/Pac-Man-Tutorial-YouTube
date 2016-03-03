@@ -2,5 +2,5 @@ package com.dregronprogram.game_state.ghost;
 
 public enum GhostState {
 
-    IDLE, SEARCH, TARGET_PLAYER, BEGIN, SCARED
+    DEAD, SEARCH, TARGET_PLAYER, BEGIN, SCARED
 }

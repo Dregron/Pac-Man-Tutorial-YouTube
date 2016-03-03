@@ -1,9 +1,9 @@
 package com.dregronprogram.game_state.ghost;
 
-import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.geom.Ellipse2D;
+import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +15,7 @@ import com.dregronprogram.game_state.GameState;
 import com.dregronprogram.game_state.Player;
 import com.dregronprogram.game_state.a_star.Node;
 import com.dregronprogram.game_state.a_star.Path;
+import com.dregronprogram.game_state.level.Level;
 import com.dregronprogram.utils.MathUtils;
 import com.dregronprogram.utils.SpriteAnimation;
 import com.dregronprogram.utils.Vector2;
@@ -24,6 +25,7 @@ public class Ghost implements Renderer {
 	private Rectangle rectangle;
 	private float xPos, yPos, delay;
 	private SpriteAnimation leftAnimation, rightAnimation, downAnimation, upAnimation, scaredGhost;
+	private BufferedImage leftDeadGhost, rightDeadGhost, upDeadGhost, downDeadGhost;
 	private Path path;
 	private List<Node> nodes = new LinkedList<>();
 	private Node currentTarget, prevTarget;
@@ -31,8 +33,9 @@ public class Ghost implements Renderer {
 	private Player player;
 
 	private Ellipse2D ellipse;
+	private Level level;
 
-	public Ghost(int xPos, int yPos, int width, int height, Map<Vector2, Node> nodes, Player player, float delay) {
+	public Ghost(Level level, int xPos, int yPos, int width, int height, Map<Vector2, Node> nodes, Player player, float delay) {
 		this.xPos = xPos;
 		this.yPos = yPos;
 		this.rectangle = new Rectangle(xPos, yPos, width, height);
@@ -41,6 +44,7 @@ public class Ghost implements Renderer {
 		this.currentState = GhostState.BEGIN;
 		this.ellipse = new Ellipse2D.Double(xPos, yPos, width*8, height*8);
 		this.delay = delay;
+		this.level = level;
 	}
 
 	@Override
@@ -66,15 +70,20 @@ public class Ghost implements Renderer {
 				} else {
 					movement(delta);
 				}
-				
 				updateToNextTarget();
-				
 				if (nodes.isEmpty()) {
 					setCurrentState(GhostState.SEARCH);
 				}
 			break;
-			case IDLE:
-
+			case DEAD:
+				if (nodes.isEmpty()) {
+					this.nodes.addAll(getPath().findPath(getRectangle().x, getRectangle().y, 5 * getRectangle().width, 9 * getRectangle().height));
+					this.currentTarget = this.nodes.get(nodes.size() - 1);
+					setCurrentState(GhostState.SEARCH);
+				} else {
+					movement(delta);
+				}
+				updateToNextTarget();
 				break;
 			case SEARCH:
 				if (nodes.isEmpty()) {
@@ -83,7 +92,6 @@ public class Ghost implements Renderer {
 				} else {
 					movement(delta);
 				}
-
 				switchState();
 				updateToNextTarget();
 				break;
@@ -95,6 +103,15 @@ public class Ghost implements Renderer {
 					movement(delta);
 				}
 
+				if (getPlayer().getRectangle().intersects(getRectangle())) {
+					setCurrentState(GhostState.DEAD);
+					nodes.clear();
+					this.nodes.addAll(getPath().findPath(currentTarget.getxPos(), currentTarget.getyPos(), 12 * getRectangle().width, 10 * getRectangle().height));
+					getLevel().enemyHit();
+				}
+				if (!getPlayer().isSuperPacMan()) {
+					switchState();
+				}
 				updateToNextTarget();
 				break;
 			case TARGET_PLAYER:
@@ -106,16 +123,13 @@ public class Ghost implements Renderer {
 				} else {
 					movement(delta);
 				}
-
 				switchState();
 				updateToNextTarget();
 				break;
 		}
 
-		if (getPlayer().isSuperPacMan()) {
+		if (!getCurrentState().equals(GhostState.DEAD) && getPlayer().isSuperPacMan()) {
 			setCurrentState(GhostState.SCARED);
-		} else if (getCurrentState().equals(GhostState.SCARED)) {
-			switchState();
 		}
 
 		leftAnimation.update(delta);
@@ -186,6 +200,18 @@ public class Ghost implements Renderer {
 
 		if (getCurrentState().equals(GhostState.SCARED)) {
 			scaredGhost.draw(g, getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height);
+		} else if (getCurrentState().equals(GhostState.DEAD)) {
+			if (getPath().getDX(currentTarget, prevTarget) == -1) {
+				g.drawImage(getRightDeadGhost(), getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height, null);
+			} else if (getPath().getDX(currentTarget, prevTarget) == 1) {
+				g.drawImage(getLeftDeadGhost(), getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height, null);
+			}
+
+			if (getPath().getDY(currentTarget, prevTarget) == 1) {
+				g.drawImage(getUpDeadGhost(), getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height, null);
+			} else if (getPath().getDY(currentTarget, prevTarget) == -1) {
+				g.drawImage(getDownDeadGhost(), getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height, null);
+			}
 		} else if (currentTarget != null && prevTarget != null) {
 			if (getPath().getDX(currentTarget, prevTarget) == -1) {
 				rightAnimation.draw(g, getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height);
@@ -297,5 +323,41 @@ public class Ghost implements Renderer {
 
 	public SpriteAnimation getScaredGhost() {
 		return scaredGhost;
+	}
+
+	public BufferedImage getLeftDeadGhost() {
+		return leftDeadGhost;
+	}
+
+	public void setLeftDeadGhost(BufferedImage leftDeadGhost) {
+		this.leftDeadGhost = leftDeadGhost;
+	}
+
+	public BufferedImage getRightDeadGhost() {
+		return rightDeadGhost;
+	}
+
+	public void setRightDeadGhost(BufferedImage rightDeadGhost) {
+		this.rightDeadGhost = rightDeadGhost;
+	}
+
+	public BufferedImage getUpDeadGhost() {
+		return upDeadGhost;
+	}
+
+	public void setUpDeadGhost(BufferedImage upDeadGhost) {
+		this.upDeadGhost = upDeadGhost;
+	}
+
+	public BufferedImage getDownDeadGhost() {
+		return downDeadGhost;
+	}
+
+	public void setDownDeadGhost(BufferedImage downDeadGhost) {
+		this.downDeadGhost = downDeadGhost;
+	}
+
+	public Level getLevel() {
+		return level;
 	}
 }
