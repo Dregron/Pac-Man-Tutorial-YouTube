@@ -2,6 +2,7 @@ package com.dregronprogram.menu_state;
 
 import com.dregronprogram.display.Display;
 import com.dregronprogram.state.State;
+import com.dregronprogram.state.StateId;
 import com.dregronprogram.state.StateMachine;
 
 import java.awt.*;
@@ -20,7 +21,7 @@ public class MenuState extends State implements KeyListener {
 
     @Override
     public void init(Canvas canvas) {
-
+    	canvas.addKeyListener(this);
     }
 
     @Override
@@ -41,18 +42,18 @@ public class MenuState extends State implements KeyListener {
 
     @Override
     public void keyTyped(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-
-        }
+        
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-
+    	
     }
 
     @Override
     public void keyReleased(KeyEvent e) {
-
+    	if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+        	getStateMachine().setState(StateId.GAME);
+        }
     }
 }

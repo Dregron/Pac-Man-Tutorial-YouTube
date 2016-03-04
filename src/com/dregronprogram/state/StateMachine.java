@@ -2,7 +2,8 @@ package com.dregronprogram.state;
 
 import java.awt.Canvas;
 import java.awt.Graphics2D;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.dregronprogram.game_state.GameState;
 import com.dregronprogram.menu_state.MenuState;
@@ -10,38 +11,39 @@ import com.dregronprogram.splash_state.SplashState;
 
 public class StateMachine {
 
-	private final ArrayList<State> states = new ArrayList<State>();
+	private final Map<StateId, State> states = new HashMap<StateId, State>();
 	private final Canvas canvas;
-	private byte selectState = 0;
+	private StateId currentState;
 	
 	public StateMachine(Canvas canvas){
+		this.canvas = canvas;
+		
 		GameState gameState = new GameState(this);
 		MenuState menuState = new MenuState(this);
 		SplashState splashState = new SplashState(this);
-		states.add(gameState);
-		states.add(menuState);
-		states.add(splashState);
-		
-		this.canvas = canvas;
+		getStates().put(StateId.GAME, gameState);
+		getStates().put(StateId.MENU, menuState);
+		getStates().put(StateId.SPLASH, splashState);
+		setState(StateId.MENU);
 	}
 	
 	public void draw(Graphics2D g){
-		states.get(selectState).draw(g);
+		getStates().get(currentState).draw(g);
 	}
 	
 	public void update(double delta){
-		states.get(selectState).update(delta);
+		getStates().get(currentState).update(delta);
 	}
 	
-	public void setState(byte i){
+	public void setState(StateId i){
 		for(int r = 0; r < canvas.getKeyListeners().length; r++) {
 			canvas.removeKeyListener(canvas.getKeyListeners()[r]);
 		}
-		selectState = i;
-		states.get(selectState).init(canvas);
+		currentState = i;
+		getStates().get(currentState).init(canvas);
 	}
 
-	public byte getStates() {
-		return selectState;
+	private Map<StateId, State> getStates() {
+		return states;
 	}
 }

@@ -60,7 +60,6 @@ public class Display extends Canvas implements Runnable {
 		this.setFocusable(true);
 
 		state = new StateMachine(this);
-		state.setState((byte) 1);
 	}
 
 	@Override
