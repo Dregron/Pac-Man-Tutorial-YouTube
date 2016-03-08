@@ -15,12 +15,10 @@ import java.util.Map;
 
 public class Level_1 extends Level {
 
-	private boolean ready;
 	private TickTimer spawn, pauseTimer;
 
 	public Level_1(Map<Integer, BufferedImage> spriteSheet, Player player) {
 		super(spriteSheet, player);
-		this.ready = false;
 		this.setPause(false);
 		this.pauseTimer = new TickTimer(60);
 	}
@@ -94,12 +92,6 @@ public class Level_1 extends Level {
 		getPlayer().setBlocks(getBlocks());
 		getPlayer().setFoods(getFoods());
 		getPlayer().setPowerUps(getPowerUps());
-		ready = true;
 		spawn = new TickTimer(300);
-	}
-
-	@Override
-	public boolean levelReady() {
-		return ready;
 	}
 }

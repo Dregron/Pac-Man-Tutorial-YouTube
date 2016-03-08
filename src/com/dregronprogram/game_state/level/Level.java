@@ -1,6 +1,18 @@
 package com.dregronprogram.game_state.level;
 
-import com.dregronprogram.game_state.*;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.dregronprogram.game_state.Block;
+import com.dregronprogram.game_state.Food;
+import com.dregronprogram.game_state.GameState;
+import com.dregronprogram.game_state.Player;
+import com.dregronprogram.game_state.PowerUp;
 import com.dregronprogram.game_state.a_star.Node;
 import com.dregronprogram.game_state.ghost.Ghost;
 import com.dregronprogram.tiled_map.Tiled;
@@ -9,16 +21,12 @@ import com.dregronprogram.tiled_map.Tileset;
 import com.dregronprogram.utils.SpriteAnimation;
 import com.dregronprogram.utils.Vector2;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.util.*;
-import java.util.List;
-
 public abstract class Level {
 
 	private boolean pause;
 	private TiledMap tiledmap;
 	private Player player;
+	private boolean ready;
 
 	private List<Ghost> ghosts = new ArrayList<>();
 	private Map<Integer, BufferedImage> spriteSheet;
@@ -30,6 +38,7 @@ public abstract class Level {
 	public Level(Map<Integer, BufferedImage> spriteSheet, Player player) {
 		this.spriteSheet = spriteSheet;
 		this.player = player;
+		this.ready = false;
 	}
 
 	public abstract void update(double delta);
@@ -59,7 +68,6 @@ public abstract class Level {
 	
 	public abstract boolean isComplete();
 	public abstract boolean isGameOver();
-	public abstract boolean levelReady();
 	
 	public abstract void beginLevel();
 
@@ -228,5 +236,13 @@ public abstract class Level {
 
 	protected boolean isPause() {
 		return pause;
+	}
+	
+	public boolean levelReady() {
+		return ready;
+	}
+	
+	public void startLevel() {
+		ready = true;
 	}
 }

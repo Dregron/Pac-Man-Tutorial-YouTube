@@ -46,10 +46,13 @@ public class SpriteAnimation {
 
 	public void draw(Graphics2D g, int xPos, int yPos, int width, int height) {
 		if (isSpriteAnimDestroyed()) return;
-
-		at.translate(xPos, yPos);
-
-		g.drawImage(sprites.get(currentSprite), xPos, yPos, width, height, null);
+		
+		setxPos(xPos);
+		setyPos(yPos);
+		setWidth(width);
+		setHeight(height);
+		
+		draw(g);
 	}
 
 	public void update(double delta) {

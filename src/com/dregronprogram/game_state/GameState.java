@@ -1,9 +1,9 @@
 package com.dregronprogram.game_state;
 
 import java.awt.Canvas;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
@@ -13,17 +13,21 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import com.dregronprogram.display.Display;
 import com.dregronprogram.game_state.level.LevelHandler;
 import com.dregronprogram.state.State;
 import com.dregronprogram.state.StateMachine;
 import com.dregronprogram.tiled_map.TiledMap;
+import com.dregronprogram.utils.TickTimer;
 
-public class GameState extends State implements KeyListener {
+public class GameState extends State {
 
+	private Font startFont = new Font(Font.SANS_SERIF, Font.ITALIC, 24);
+	private String ready = "Ready!";
 	private Map<Integer, BufferedImage> spriteSheet = new HashMap<Integer, BufferedImage>();
 	private LevelHandler levelHandler;
 	private Player player;
-	private boolean beginLevel;
+	private TickTimer startGameTimer;
 	public final static boolean debugMode = false;
 	
 	public GameState(StateMachine stateMachine) {
@@ -32,6 +36,8 @@ public class GameState extends State implements KeyListener {
 		this.loadSpriteSheet();
 		this.player = new Player(Arrays.asList(spriteSheet.get(6), spriteSheet.get(7), spriteSheet.get(8)));
 		this.levelHandler = new LevelHandler(spriteSheet, player);
+		this.startGameTimer = new TickTimer(300);
+		getLevelHandler().getCurrentLevel().beginLevel();	
 	}
 	
 	private void loadSpriteSheet() {
@@ -66,22 +72,28 @@ public class GameState extends State implements KeyListener {
 			} else if (getLevelHandler().getCurrentLevel().isGameOver()) {
 				System.err.println("Game Over!");
 			}
-		} else if (isLevelBegining()) {
-							
-			setBeginLevel(false);
+		} else {
+			startGameTimer.tick(delta);
+			if (startGameTimer.isEventReady()) {
+			
+				getLevelHandler().getCurrentLevel().startLevel();
+			}
 		}
 	}
 
 	@Override
 	public void draw(Graphics2D g) {
-		if (!getLevelHandler().levelReady()) return;
+		if (!getLevelHandler().levelReady()) {
+			g.setColor(Color.YELLOW);
+	        g.setFont(startFont);
+	        g.drawString(ready, (Display.WIDTH/2)-(g.getFontMetrics().stringWidth(ready)/2), (Display.HEIGHT/2)+55);
+		}
 		
 		getLevelHandler().draw(g);
 	}
 
 	@Override
 	public void init(Canvas canvas) {
-		canvas.addKeyListener(this);
 		canvas.addKeyListener(getPlayer());
 	}
 	
@@ -91,31 +103,5 @@ public class GameState extends State implements KeyListener {
 	
 	public Player getPlayer() {
 		return player;
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e) {
-		
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-		
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-			getLevelHandler().getCurrentLevel().beginLevel();	
-			setBeginLevel(true);
-		}
-	}
-	
-	public void setBeginLevel(boolean beginLevel) {
-		this.beginLevel = beginLevel;
-	}
-	
-	public boolean isLevelBegining() {
-		return beginLevel;
 	}
 }

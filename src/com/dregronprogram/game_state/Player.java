@@ -80,9 +80,7 @@ public class Player implements Renderer, KeyListener {
 		attemptChangeDirection();
 		eatFood();
 		powerLogic(delta);
-		playerAnimation.setxPos(getRectangle().x);
-		playerAnimation.setyPos(getRectangle().y);
-		playerAnimation.update(delta);
+ 		playerAnimation.update(delta);
 		
 		if (getRectangle().x > Display.WIDTH) {
 			getRectangle().x = -getRectangle().width;
@@ -133,7 +131,7 @@ public class Player implements Renderer, KeyListener {
 			g.drawImage(healthSprite, i*(healthSprite.getWidth()), Display.HEIGHT-(healthSprite.getHeight()-5), healthSprite.getWidth()-10, healthSprite.getHeight()-10, null);
 		}
 		
-		playerAnimation.draw(g);
+		playerAnimation.draw(g, getRectangle().x, getRectangle().y, getRectangle().width, getRectangle().height);
 	}
 
 	public Rectangle getRectangle() {
