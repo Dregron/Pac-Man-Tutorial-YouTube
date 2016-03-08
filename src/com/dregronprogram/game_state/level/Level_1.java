@@ -62,7 +62,12 @@ public class Level_1 extends Level {
 
 	@Override
 	public boolean isGameOver() {
-		return getPlayer().getHealth() <= 0;
+		for (Ghost ghost : getGhosts()) {
+			if (getPlayer().getRectangle().intersects(ghost.getRectangle())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
