@@ -245,4 +245,24 @@ public abstract class Level {
 	public void startLevel() {
 		ready = true;
 	}
+
+	public void setPlayer(Player player) {
+		this.player = player;
+	}
+
+	public void setReady(boolean ready) {
+		this.ready = ready;
+	}
+
+	public void reset() {
+		getGhosts().clear();
+		getFoods().clear();
+		getBlocks().clear();
+		getPowerUps().clear();
+		setTiledmap(null);
+		setReady(false);
+		setPause(false);
+
+		getPlayer().reset();
+	}
 }

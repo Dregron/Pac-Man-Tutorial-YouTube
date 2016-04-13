@@ -31,4 +31,8 @@ public class LevelHandler {
 	public boolean levelReady() {
 		return getCurrentLevel().levelReady();
 	}
+
+	public void reset() {
+		getCurrentLevel().reset();
+	}
 }

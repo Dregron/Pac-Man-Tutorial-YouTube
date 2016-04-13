@@ -16,6 +16,7 @@ import javax.imageio.ImageIO;
 import com.dregronprogram.display.Display;
 import com.dregronprogram.game_state.level.LevelHandler;
 import com.dregronprogram.state.State;
+import com.dregronprogram.state.StateId;
 import com.dregronprogram.state.StateMachine;
 import com.dregronprogram.tiled_map.TiledMap;
 import com.dregronprogram.utils.TickTimer;
@@ -37,7 +38,6 @@ public class GameState extends State {
 		this.player = new Player(Arrays.asList(spriteSheet.get(6), spriteSheet.get(7), spriteSheet.get(8)));
 		this.levelHandler = new LevelHandler(spriteSheet, player);
 		this.startGameTimer = new TickTimer(300);
-		getLevelHandler().getCurrentLevel().beginLevel();	
 	}
 	
 	private void loadSpriteSheet() {
@@ -70,7 +70,7 @@ public class GameState extends State {
 			if (getLevelHandler().getCurrentLevel().isComplete()) {
 				System.err.println("Level Won!");
 			} else if (getLevelHandler().getCurrentLevel().isGameOver() && !getPlayer().isSuperPacMan()) {
-				System.err.println("Game Over!");
+				getStateMachine().setState(StateId.MENU);
 			}
 		} else {
 			startGameTimer.tick(delta);
@@ -95,8 +95,14 @@ public class GameState extends State {
 	@Override
 	public void init(Canvas canvas) {
 		canvas.addKeyListener(getPlayer());
+		getLevelHandler().getCurrentLevel().beginLevel();
 	}
-	
+
+	@Override
+	public void reset() {
+		getLevelHandler().reset();
+	}
+
 	public LevelHandler getLevelHandler() {
 		return levelHandler;
 	}

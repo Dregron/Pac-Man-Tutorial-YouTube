@@ -24,6 +24,7 @@ public class StateMachine {
 		getStates().put(StateId.GAME, gameState);
 		getStates().put(StateId.MENU, menuState);
 		getStates().put(StateId.SPLASH, splashState);
+
 		setState(StateId.MENU);
 	}
 	
@@ -38,6 +39,9 @@ public class StateMachine {
 	public void setState(StateId i){
 		for(int r = 0; r < canvas.getKeyListeners().length; r++) {
 			canvas.removeKeyListener(canvas.getKeyListeners()[r]);
+		}
+		if (getStates().get(currentState) != null) {
+			getStates().get(currentState).reset();
 		}
 		currentState = i;
 		getStates().get(currentState).init(canvas);

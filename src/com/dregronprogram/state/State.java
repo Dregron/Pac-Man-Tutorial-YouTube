@@ -13,6 +13,7 @@ public abstract class State implements Renderer {
 	}
 	
 	public abstract void init(Canvas canvas);
+	public abstract void reset();
 	
 	public StateMachine getStateMachine() {
 		return stateMachine;

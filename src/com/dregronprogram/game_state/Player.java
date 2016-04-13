@@ -374,4 +374,10 @@ public class Player implements Renderer, KeyListener {
 	public int getHealth() {
 		return health;
 	}
+
+	public void reset() {
+		this.currentDirection = RIGHT;
+		this.superTimer.resetTimer();
+		this.playerAnimation.reset();
+	}
 }

@@ -23,7 +23,7 @@ public class TickTimer {
 		return false;
 	}
 	
-	private void resetTimer() {
+	public void resetTimer() {
 		tick = 0;
 	}
 }

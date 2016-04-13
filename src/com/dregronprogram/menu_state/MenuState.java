@@ -14,6 +14,7 @@ public class MenuState extends State implements KeyListener {
     private Font menuFont = new Font("Serif", Font.TRUETYPE_FONT, 102);
     private Font startFont = new Font("Serif", Font.TRUETYPE_FONT, 48);
     private String pacman = "Pac-Man", start = "press enter";
+    private boolean enter = false;
 
     public MenuState(StateMachine stateMachine) {
         super(stateMachine);
@@ -25,8 +26,16 @@ public class MenuState extends State implements KeyListener {
     }
 
     @Override
-    public void update(double delta) {
+    public void reset() {
 
+    }
+
+    @Override
+    public void update(double delta) {
+        if (isEnter()) {
+            getStateMachine().setState(StateId.GAME);
+            setEnter(false);
+        }
     }
 
     @Override
@@ -53,7 +62,15 @@ public class MenuState extends State implements KeyListener {
     @Override
     public void keyReleased(KeyEvent e) {
     	if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-        	getStateMachine().setState(StateId.GAME);
+        	setEnter(true);
         }
+    }
+
+    public boolean isEnter() {
+        return enter;
+    }
+
+    public void setEnter(boolean enter) {
+        this.enter = enter;
     }
 }

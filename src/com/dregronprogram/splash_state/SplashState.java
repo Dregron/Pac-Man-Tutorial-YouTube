@@ -17,6 +17,11 @@ public class SplashState extends State {
     }
 
     @Override
+    public void reset() {
+
+    }
+
+    @Override
     public void update(double delta) {
 
     }

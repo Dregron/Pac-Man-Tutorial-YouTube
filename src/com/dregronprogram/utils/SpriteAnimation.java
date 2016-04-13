@@ -201,4 +201,8 @@ public class SpriteAnimation {
 	public void setRotation(double rotation) {
 		this.rotation = rotation;
 	}
+
+	public void reset() {
+		currentSprite = 0;
+	}
 }
