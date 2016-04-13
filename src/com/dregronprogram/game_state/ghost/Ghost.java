@@ -11,6 +11,7 @@ import java.util.Random;
 
 import com.dregronprogram.application.Renderer;
 import com.dregronprogram.display.Display;
+import com.dregronprogram.game_state.Direction;
 import com.dregronprogram.game_state.GameState;
 import com.dregronprogram.game_state.Player;
 import com.dregronprogram.game_state.a_star.Node;
@@ -115,7 +116,7 @@ public class Ghost implements Renderer {
 				updateToNextTarget();
 				break;
 			case TARGET_PLAYER:
-				if (nodes.isEmpty()) {
+				if (nodes.isEmpty() ) {
 					int xPlayer = (getPlayer().getRectangle().x/getPlayer().getRectangle().width) * getPlayer().getRectangle().width;
 					int yPlayer = (getPlayer().getRectangle().y/getPlayer().getRectangle().height) * getPlayer().getRectangle().height;
 					nodes.addAll(getPath().findPath((int) getXPos(), (int) getYPos(), xPlayer, yPlayer));
@@ -143,16 +144,17 @@ public class Ghost implements Renderer {
 		if (MathUtils.isEqual(currentTarget.getxPos(), getRectangle().x, 1) && MathUtils.isEqual(currentTarget.getyPos(), getRectangle().y, 1) && !nodes.isEmpty()) {
             setXPos(currentTarget.getxPos());
             setYPos(currentTarget.getyPos());
-            prevTarget = currentTarget;
-            currentTarget = nodes.get(nodes.size() - 1);
-            if (!getPath().isAdjacentBlock(currentTarget, prevTarget)) {
-                throw new IllegalStateException("current node not adjacent from prev target \n"
+			nodes.remove(currentTarget);
+			prevTarget = currentTarget;
+			if (!nodes.isEmpty()) {
+				currentTarget = nodes.get(nodes.size() - 1);
+			}
+			if (!getPath().isAdjacentBlock(currentTarget, prevTarget)) {
+				throw new IllegalStateException("current node not adjacent from prev target \n"
                         + "prev xPos: " + prevTarget.getxPos()  + " prev yPos: " + prevTarget.getyPos() + " \n"
                         + "curr xPos: " + currentTarget.getxPos() + " curr yPos: " + currentTarget.getyPos());
-            }
-            nodes.remove(currentTarget);
+			}
         }
-		
 	}
 
 	private void switchState() {

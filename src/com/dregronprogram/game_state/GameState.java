@@ -69,7 +69,7 @@ public class GameState extends State {
 			getLevelHandler().update(delta);
 			if (getLevelHandler().getCurrentLevel().isComplete()) {
 				System.err.println("Level Won!");
-			} else if (getLevelHandler().getCurrentLevel().isGameOver()) {
+			} else if (getLevelHandler().getCurrentLevel().isGameOver() && !getPlayer().isSuperPacMan()) {
 				System.err.println("Game Over!");
 			}
 		} else {

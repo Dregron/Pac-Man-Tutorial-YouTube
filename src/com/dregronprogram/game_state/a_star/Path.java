@@ -114,7 +114,7 @@ public class Path implements Renderer {
 		return n;
 	}
 
-	private List<Node> getAdjacentBlocks(Node current) {
+	public List<Node> getAdjacentBlocks(Node current) {
 		List<Node> bs = new ArrayList<>();
 		Vector2 vector = new Vector2(0, 0);
 		vector.set(current.getxPos()+current.getWidth(), current.getyPos());
